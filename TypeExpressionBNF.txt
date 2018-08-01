@@ -1,0 +1,33 @@
+<type expression>     ::= <parameterised type>
+                        | <type expression> "|" <type expression>
+<parameterised type>  ::= <name> <type parameter>* <range parameter>*
+<type parameter>      ::= "[" <type expression> "]"
+<range parameter>     ::= "{" <range expression> "}"
+<range expression>    ::= <boolean range>
+                        | <integer range>
+                        | <decimal range>
+                        | <regex>
+                        | <name>
+<boolean range>       ::= "true" 
+                        | "false" 
+                        | "any"
+<integer range>       ::= <integer>
+                        | <integer interval>
+                        | <integer range> "," <integer range>
+<integer interval>    ::= <integer>? "..." <integer>?
+<decimal range>       ::= <decimal>
+                        | <decimal interval>
+                        | <decimal range> "," <decimal range>
+<decimal interval>    ::= <decimal>? "..." <decimal>?
+
+<name>                (alphanumeric string without spaces, at least one alpha character)
+<integer>             (usual signed integer form, with possible exponention)
+<decimal>             (usual signed decimal form, with possible exponention)
+<regex>               (valid regex forms, but always with start and end anchors)
+
+
+- for declaration -
+
+<type declaration>    ::= <name> <type declaration>* <range declaration>*
+<type declaration>    ::= "[" <name> "]"
+<range declaration>   ::= "{" <name> "}"

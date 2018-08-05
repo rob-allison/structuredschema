@@ -6,7 +6,7 @@
 <range expression>    ::= <boolean range>
                         | <integer range>
                         | <decimal range>
-                        | <regex>
+                        | "/" <regex> "/"
                         | <name>
 <boolean range>       ::= "true" 
                         | "false" 
@@ -14,20 +14,16 @@
 <integer range>       ::= <integer>
                         | <integer interval>
                         | <integer range> "," <integer range>
-<integer interval>    ::= <integer>? "..." <integer>?
+<integer interval>    ::= <integer>? ".." <integer>? <integer step>?
+<integer step>        ::= "/" <integer>
 <decimal range>       ::= <decimal>
                         | <decimal interval>
                         | <decimal range> "," <decimal range>
-<decimal interval>    ::= <decimal>? "..." <decimal>?
+<decimal interval>    ::= <decimal>? "..." <decimal>? <decimal step>?
+<decimal step>        ::= "/" <decimal>
 
-<name>                (alphanumeric string without spaces, at least one alpha character)
-<integer>             (usual signed integer form, with possible exponention)
-<decimal>             (usual signed decimal form, with possible exponention)
-<regex>               (valid regex forms, but always with start and end anchors)
+<name>                (alphanumeric, possibly with - and _, without spaces, at least one alpha character)
+<integer>             (signed integer form, possibly with exponention)
+<decimal>             (signed decimal form, possibly with exponention)
+<regex>               (valid regex form, but any } escaped as \})
 
-
-- for declaration -
-
-<type declaration>    ::= <name> <type declaration>* <range declaration>*
-<type declaration>    ::= "[" <name> "]"
-<range declaration>   ::= "{" <name> "}"

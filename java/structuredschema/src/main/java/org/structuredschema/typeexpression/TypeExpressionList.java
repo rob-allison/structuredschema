@@ -1,6 +1,10 @@
 package org.structuredschema.typeexpression;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TypeExpressionList extends TypeExpression
 {
@@ -17,14 +21,28 @@ public class TypeExpressionList extends TypeExpression
 	}
 
 	@Override
-	public boolean isDeclaration( )
+	public TypeExpression replaceTypeName( String name, TypeExpression expression )
 	{
-		return false;
+		return new TypeExpressionList( typeExpressions.stream( ).map( e -> e.replaceTypeName( name, expression ) ).collect( Collectors.toList( ) ) );
 	}
 
 	@Override
-	public boolean isSimpleName( )
+	public TypeExpression replaceRangeName( String name, RangeExpression expression )
 	{
-		return false;
+		return new TypeExpressionList( typeExpressions.stream( ).map( e -> e.replaceRangeName( name, expression ) ).collect( Collectors.toList( ) ) );
+	}
+
+	@Override
+	public void compose( Writer writer ) throws IOException
+	{
+		for ( Iterator<TypeExpression> iter = typeExpressions.iterator( ); iter.hasNext( ); )
+		{
+			TypeExpression expr = iter.next( );
+			expr.compose( writer );
+			if ( iter.hasNext( ) )
+			{
+				writer.write( '|' );
+			}
+		}
 	}
 }

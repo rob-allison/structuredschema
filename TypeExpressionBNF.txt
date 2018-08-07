@@ -1,13 +1,12 @@
-<type expression>     ::= <parameterised type>
+<type expression>     ::= <name> <type parameter>*
+                        | <type literal>
                         | <type expression> "|" <type expression>
-<parameterised type>  ::= <name> <type parameter>* <range parameter>*
 <type parameter>      ::= "[" <type expression> "]"
-<range parameter>     ::= "{" <range expression> "}"
-<range expression>    ::= <boolean range>
+<type literal>        ::= <boolean range>
                         | <integer range>
                         | <decimal range>
                         | "/" <regex> "/"
-                        | <name>
+                        | "null"
 <boolean range>       ::= "true" 
                         | "false" 
                         | "any"
@@ -21,6 +20,7 @@
                         | <decimal range> "," <decimal range>
 <decimal interval>    ::= <decimal>? "..." <decimal>? <decimal step>?
 <decimal step>        ::= "/" <decimal>
+
 
 <name>                (alphanumeric, possibly with - and _, without spaces, at least one alpha character)
 <integer>             (signed integer form, possibly with exponention)

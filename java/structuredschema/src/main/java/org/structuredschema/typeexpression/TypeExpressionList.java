@@ -3,7 +3,9 @@ package org.structuredschema.typeexpression;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TypeExpressionList extends TypeExpression
@@ -19,17 +21,11 @@ public class TypeExpressionList extends TypeExpression
 	{
 		return typeExpressions;
 	}
-
+	
 	@Override
-	public TypeExpression replaceTypeName( String name, TypeExpression expression )
+	public TypeExpression replace( String name, TypeExpression expression )
 	{
-		return new TypeExpressionList( typeExpressions.stream( ).map( e -> e.replaceTypeName( name, expression ) ).collect( Collectors.toList( ) ) );
-	}
-
-	@Override
-	public TypeExpression replaceRangeName( String name, RangeExpression expression )
-	{
-		return new TypeExpressionList( typeExpressions.stream( ).map( e -> e.replaceRangeName( name, expression ) ).collect( Collectors.toList( ) ) );
+		return new TypeExpressionList( typeExpressions.stream( ).map( e -> e.replace( name, expression ) ).collect( Collectors.toList( ) ) );
 	}
 
 	@Override
@@ -45,4 +41,25 @@ public class TypeExpressionList extends TypeExpression
 			}
 		}
 	}
+
+	@Override
+	public void validate( Object val, Map<String,TypeDeclaration> context, List<String> errors )
+	{
+		List<String> errs = new LinkedList<>( );
+		for ( TypeExpression expr : typeExpressions )
+		{
+			expr.validate( val, context, errs );
+			if ( errs.isEmpty( ) )
+			{
+				return;
+			}
+			else
+			{
+				errs = new LinkedList<>( );
+			}
+		}
+		errors.add( "cannot validate union" );
+	}
+	
+	
 }

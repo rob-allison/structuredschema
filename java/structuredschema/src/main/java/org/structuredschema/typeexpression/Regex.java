@@ -6,7 +6,7 @@ import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Regex extends RangeExpression
+public class Regex extends TypeLiteral
 {
 	private final String regex;
 
@@ -16,23 +16,11 @@ public class Regex extends RangeExpression
 	}
 
 	@Override
-	public boolean isNamedRange( )
-	{
-		return false;
-	}
-
-	@Override
 	public boolean validate( Object obj )
 	{
 		Pattern p = Pattern.compile( regex );
 		Matcher m = p.matcher( (String)obj );
 		return m.matches( );
-	}
-
-	@Override
-	public RangeExpression replaceRangeName( String name, RangeExpression expression )
-	{
-		return this;
 	}
 	
 	public static Regex parseRegex( Reader reader ) throws IOException
@@ -60,11 +48,6 @@ public class Regex extends RangeExpression
 					}
 					else
 					{
-						int d = reader.read( );
-						if ( d != '}' )
-						{
-							throw new RuntimeException( "} expected" );
-						}
 						return new Regex( builder.toString( ) );
 					}
 

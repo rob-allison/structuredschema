@@ -1,5 +1,4 @@
-<type declaration>    ::= <name> <type declaration>* <range declaration>*
-<type declaration>    ::= "[" <name> "]"
-<range declaration>   ::= "{" <name> "}"
+<type declaration>         ::= <name> <parameter declaration>*
+<parameter declaration>    ::= "[" <name> "]"
 
 <name>                (alphanumeric string without spaces, at least one alpha character)

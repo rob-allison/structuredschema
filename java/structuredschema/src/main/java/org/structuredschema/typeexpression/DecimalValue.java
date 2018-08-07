@@ -28,7 +28,7 @@ public class DecimalValue extends DecimalRange
 
 	public static String regex( )
 	{
-		return "\\-?\\d+\\.\\d+([eE]\\-?\\d+)?";
+		return "\\-?\\d+\\.\\d+([eE][\\+\\-]?\\d+)?";
 	}
 
 	public static DecimalValue parseValue( String str )

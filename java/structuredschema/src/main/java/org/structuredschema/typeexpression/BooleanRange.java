@@ -3,7 +3,7 @@ package org.structuredschema.typeexpression;
 import java.io.IOException;
 import java.io.Writer;
 
-public class BooleanRange extends RangeExpression
+public class BooleanRange extends TypeLiteral
 {
 	private final Boolean value;
 
@@ -13,22 +13,10 @@ public class BooleanRange extends RangeExpression
 	}
 
 	@Override
-	public boolean isNamedRange( )
-	{
-		return false;
-	}
-
-	@Override
 	public boolean validate( Object obj )
 	{
 		boolean b = (Boolean)obj;
 		return value != null ? b == value : true;
-	}
-
-	@Override
-	public RangeExpression replaceRangeName( String name, RangeExpression expression )
-	{
-		return this;
 	}
 	
 	public static String regex( )
@@ -61,5 +49,4 @@ public class BooleanRange extends RangeExpression
 	{
 		writer.write( value != null ? (value ? "true" : "false") : "any" );
 	}
-
 }

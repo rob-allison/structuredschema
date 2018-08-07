@@ -4,26 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public abstract class DecimalRange extends RangeExpression
+public abstract class DecimalRange extends TypeLiteral
 {
-	@Override
-	public boolean isNamedRange( )
-	{
-		return false;
-	}
-
-	@Override
-	public RangeExpression replaceRangeName( String name, RangeExpression expression )
-	{
-		return this;
-	}
-
 	public static String regex( )
 	{
 		return "(DECIMAL|INTERVAL)(,(DECIMAL|INTERVAL))*".replace( "DECIMAL", DecimalValue.regex( ) ).replace( "INTERVAL", DecimalInterval.regex( ) );
 	}
 
-	public static RangeExpression parseRange( String expr )
+	public static TypeLiteral parseRange( String expr )
 	{
 		StringTokenizer toks = new StringTokenizer( expr, "," );
 		if ( toks.countTokens( ) == 0 )

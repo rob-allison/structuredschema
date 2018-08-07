@@ -28,7 +28,7 @@ public class IntegerValue extends IntegerRange
 
 	public static String regex( )
 	{
-		return "\\-?\\d+([eE]\\-?\\d+)?";
+		return "\\-?\\d+([eE][\\+\\-]?\\d+)?";
 	}
 
 	public static IntegerValue parseValue( String str )

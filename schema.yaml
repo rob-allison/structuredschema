@@ -1,0 +1,313 @@
+# This document serves as a schema for mv.yaml, instructions on how to interpret it are provided at the bottom.
+
+def:
+  feeds: List[Feed]                     # list of feeds
+  vizers: List[Vizer]                   # list of vizers
+  connect: List[Connect]                # list of connections between feeds and vizers
+  home: Directory?                      # optionally define the directory structure when browsing MetriVision
+  admin-link: Boolean?                  # display admin link (cog), defaults to true
+
+context:
+  - name: Feed                          # base feed definition common to all feed types
+    def:
+      type: Discriminator               # choose your feed type
+      name: String                      # feed name - do not use spaces
+      active: Boolean?                  # defaults to true
+      sample: 1..?                      # number of events to collect, on a rolling basis, for display when snapshotting the feed, defaults to 10.
+      preprocessor: Preprocessor?       # optionally define a preprocessor for your event stream
+
+  - name: SocketFeed                    # event stream over a socket
+    extends: Feed
+    def:
+      host: String?                     # host to connect to, defaults to localhost
+      port: Integer                     # port to connect to
+      parser: StructuredParser?         # choose a parser, defaults to JsonParser
+
+  - name: WebSocketFeed                 # event stream over a WebSocket
+    extends: Feed
+    def:
+      uri: String                       # uri to connect to
+      parser: StructuredParser?         # choose a parser, defaults to JsonParser
+      hello: String?                    # optional initial handshake to be sent to the server on connect, as the name of a json file in the conf dir.
+      restart: Boolean?                 # restart on error, defaults to true
+
+  - name: HttpStreamingFeed             # events stream over Http Streaming protocol
+    extends: Feed
+    def:
+      uri: String                       # uri to connect to
+      parser: StructuredParser?         # choose a parser, defaults to JsonParser
+
+  - name: SqlFeed                       # read from a database (or other SQL source).
+    extends: Feed
+    def:
+      uri: String                       # uri to connect to 
+      username: String                  # database username
+      password: String                  # database password
+      query: String                     # query to execute
+      rate: Integer?                    # when set, will repeat the read at the specified rate per second.
+
+  - name: FileFeed                      # read from a file
+    extends: Feed
+    def:
+      path: String                      # path to the file
+      parser: StructuredParser?         # choose a parser, defaults to JsonParser
+      rate: Integer?                    # when set, will repeat the read at the specified rate per second.
+
+  - name: TestFeed                      # A simple test feed generating events from within MetriVision
+    extends: Feed
+    def:
+      testdata1-max: Integer            # max value (exc) for testdata 1
+      testdata2-max: Integer            # max value (exc) for testdata 2
+      testdata3-max: Integer            # max value (exc) for testdata 3
+      testdata4-max: Integer            # max value (exc) for testdata 4
+      testdata5-max: Integer            # max value (exc) for testdata 5
+      rate: Integer                     # number of events per second generated
+
+  - name: StructuredParser              # base parser
+    def:
+      type: Discriminator               # choose your parser type
+
+  - name: JsonParser                    # JSON parser, expects input to be JSON structured text.
+    extends: StructuredParser
+
+  - name: YamlParser                    # YAML parser, expects input to be YAML structured text.
+    extends: StructuredParser
+
+  - name: CsvParser                     # CSV parser, expects input to be CSV structured text.
+    extends: StructuredParser
+    def:
+      headers: List[String]?            # optionally provide a list of headers, if an empty list is provided the first row is read in as headers.
+
+  - name: ProtobufParser                # Protobuf parser (TBD)
+    extends: StructuredParser
+
+  - name: Vizer                         # base vizer definition common to all vizer types
+    def:
+      name: String                      # vizer name - do not use spaces
+      active: Boolean?                  # defaults to true
+      filter: Filter?                   # optionally specify a filter
+      persist: TimeInterval?            # time to persist painted data - defaults to persist forever
+      compact: TimeInterval?            # time to compact rows or columns that have received no data in that period - defaults to never compact
+      x: List[Dimension]                # list of dimensions for the x axis
+      y: List[Dimension]                # list of dimensions for the y axis
+      color: Colorizer                  # specify the required colorizer
+      record: TimeInterval?             # rolling time period for which a recording is kept, defaults to no recording
+      consumer: FrameConsumer?          # (TBD)
+
+  - name: Filter                        # base filter definition common to all filters
+    def:
+      type: Discriminator               # choose your filter type
+      white: Boolean                    # true for whitelist, false for blacklist filter
+
+  - name: KeyValuesFilter               # filter based on a list of values for a key 
+    extends: Filter
+    def:
+      key: String                       # a JSON path into the event data
+      values: List[Any]                 # a list of matching values found at the path location in the event data
+
+  - name: IntegerRangeFilter   
+    extends: Filter
+    def:
+      key: String
+      low: Integer                     
+      high: Integer
+
+  - name: DecimalRangeFilter   
+    extends: Filter
+    def:
+      key: String 
+      low: Decimal                                           
+      high: Decimal
+
+  - name: Dimension                     # base dimension definition common to all dimensions
+    def:
+      type: Discriminator               # choose your dimension type
+      invert: Boolean?                  # dimensions usually sort from top left, set this to invert the sort order, defaults to false
+      label: String?                    # optional label to show when interogating via the web interface
+
+  - name: BooleanDimension              # a dimension with the two boolean values, true and false.
+    extends: Dimension
+    def:
+      key: String                       # json path into event data structure to find the boolean value
+      null-value: Boolean?              # if key does not find a value, use this value instead - or leave unset to miss the event
+
+  - name: IntegerDimension              # a dimension with integer values
+    extends: Dimension
+    def:
+      key: String                       # json path into event data structure to find the integer value
+      bucket: Bucket?                   # optionally select a bucketing strategy
+      null-value: Integer?              # if key does not find a value uses this value instead, or leave unset to miss the event
+
+  - name: DecimalDimension              # a dimension with decimal values
+    extends: Dimension
+    def:
+      key: String                       # json path into event data structure to find the decimal value
+      bucket: Bucket?                   # optionally select a bucketing strategy
+      null-value: Decimal?              # if key does not find a value uses this value instead, or leave unset to miss the event
+
+  - name: StringDimension               # a dimension with string values
+    extends: Dimension
+    def:
+      key: String                       # json path into event data structure to find the string value
+      bucket: Bucket?                   # optionally select a bucketing strategy
+      null-value: String?               # if key does not find a value uses this value instead, or leave unset to miss the event
+
+  - name: ProgressiveDimension          # place events according to their arrive time
+    extends: Dimension
+    def:
+      period: TimeInterval?             # time period for repeating the progression 
+      intervals: Integer?               # number of intervals within the progression
+
+  - name: Bucket                        # base bucket definition common to all buckets
+    def:
+      type: Discriminator               # choose your bucket type
+
+  - name: FixedWidthIntegerBucket       # fixed width buckets for integers
+    extends: Bucket
+    def:
+      width: Integer?                   # width of bucket, defaults to 1
+      align: Integer?                   # buckets are aligned on this value, defaults to 0
+
+  - name: FixedWidthDecimalBucket       # fixed width buckets for decimals
+    extends: Bucket
+    def:
+      width: Decimal?                   # width of bucket, defaults to 1.0
+      align: Decimal?                   # buckets are aligned on this value, defaults to 0.0
+
+  - name: LogDecimalBucket              # log scaling buckets for decimals
+    extends: Bucket
+    def:
+      base: Decimal?                    # base of log, defaults to 10.0
+      width: Decimal?                   # width of log buckets, buckets are at base^(i*width) for all integers i, defaults to 1.0
+      sigfigs: Integer?                 # number of significant figures of log buckets, defaults to 3
+
+  - name: LogIntegerBucket              # log scaling buckets for integers
+    extends: Bucket
+    def:
+      base: Decimal?                    # base of log, defaults to 10.0
+      width: Integer?                   # width of log buckets, buckets are at base^(i*width) for all integers i, defaults to 1
+
+  - name: CaseStringBucket              # convert strings to upper or lowercase
+    extends: Bucket
+    def:
+      upper: Boolean?                   # convert to uppercase if true, or lowercase if false, defaults to true
+
+  - name: PrefixStringBucket            # bucket by n leading characters
+    extends: Bucket
+    def:
+      length: Integer                   # length of prefix to bucket by
+
+  - name: Preprocessor                  # preprocessor using Java scripting API
+    def:
+      engine: String?                   # name of Script Engine to use, defaults to Javascript
+      script: String                    # name of script file, to be found in the conf directory
+
+  - name: Colorizer                     # base colorizer definition common to all colorizers
+    def:
+      type: Discriminator               # choose your colorizer type
+      background: HexColor?             # background color, over which events are painted
+      label: String?                    # optional label to show when interogating via the web interface
+      null-color: String?               # if no color can be produced from the event, use this value instead, or leave unset to miss the event 
+
+  - name: ConstantColorizer             # paints the same color for each event
+    extends: Colorizer
+    def:
+      color: HexColor?                  # color to be painted, as HEX values, preceded by #, must be quoted 
+
+  - name: MappedColorColorizer          # maps a string found in the event to a set of colors
+    extends: Colorizer
+    def:
+      key: String                       # json path into event data structure to find the string value
+      colors: List[Keyed[HexColor]]     # list of colors keyed by string value
+
+  - name: ScalarColorizer               # map a scalar interval to a color range
+    extends: Colorizer
+    abstract: true
+    def:
+      color-range: ColorRange?          # color range onto which the scalar maps
+      below-color: HexColor?            # color for values below the low end of the interval, or leave unset to miss the event
+      above-color: HexColor?            # color for values above the high end of the interval, or leave unset to miss the event
+      repeat: Boolean?                  # set true to repeat the interval, defaults to false
+
+  - name: IntegerColorizer              # maps an integer interval to a color range
+    extends: ScalarColorizer
+    def:
+      key: String                       # json path into event data structure to find the integer value
+      low: Integer                      # low end of the interval
+      high: Integer                     # high end of the interval
+
+  - name: DecimalColorizer              # maps a decimal interval to a color range
+    extends: ScalarColorizer
+    def:
+      key: String                       # json path into event data structure to find the decimal value
+      low: Decimal                      # low end of the interval
+      high: Decimal                     # high end of the interval
+
+  - name: BooleanColorizer              # selects a color according to a boolean value
+    extends: Colorizer
+    def:
+      key: String                       # json path into event data structure to find the boolean value
+      true-color: String?               # color for true
+      false-color: String?              # color for false
+
+  - name: ProgressiveColorizer          # color events according to their arrive time
+    extends: Colorizer
+    def:
+      color-range: ColorRange?          # color range to progress through
+      period: TimeInterval              # time period for repeating the progression
+
+  - name: MappedColorizer               # maps a string found in the event to a set of colorizers
+    extends: Colorizer
+    def:
+      key: String                       # json path into event data structure to find the string value
+      colorizers: List[Keyed[Colorizer]]  # list of colorizers keyed by string value
+
+  - name: ColorRange                    # base color range definition common to all color ranges
+    def:
+      type: Discriminator               # choose your color range type
+
+  - name: RgbColorRange                 # a color range as a staight line in the 3 dimensional RGB color cube between specified low and high colors
+    extends: ColorRange    
+    def:
+      low-color: HexColor?              # defaults to blue
+      high-color: HexColor?             # defaults to red
+
+  - name: HsvColorRange                 # a color range as a curve in the 3 dimensional HSV color cylinder between specified low and high colors, the curve rotates following the hue dimension
+    extends: ColorRange    
+    def:
+      low-color: HexColor?              # defaults to red, and assuming the other defaults this produces a red-around-to-red rainbow transitioning though all hues at max saturation and value
+      high-color: HexColor?             # defaults to be identical to the low color
+      turns: Integer?                   # number of complete turns around the cylinder, or negative to reverse in the hue dimension, defaults to 1 when low and high colors are identical, 0 otherwise
+
+  - name: Connect                       # connections for a feed
+    def:
+      feed: String                      # name of the feed
+      vizers: List[String]              # list of names of the vizers fed from this feed
+
+  - name: Directory                     # directory definition
+    def:
+      name: String                      # name of the directory
+      contents: List[Directory|String]  # contents of directory as filenames or child directories
+
+  - name: TimeInterval
+    def: /^\d+[ywdhms]$/                # defines a time interval as an integer suffixed with one of ywdhms for years, weeks, days, hours, minutes, seconds
+
+  - name: HexColor
+    def: /^#\p{XDigit}{6}$/             # defines a 32 bit color using the HEX definition #RRGGBB
+
+  - name: Keyed[T]                      # a key value pair, where the key is a string
+    def:
+      key: String                       # key as a string
+      value: T                          # value
+
+# This YAML document defines a type based schema for YAML documents. It consists of a def and a context.
+
+# def defines the top level structure expected of the target document. Each key under def matches a key to be found at the top level of the target document. Each value is either a Type Invocation as a string, or a YAML object with further key values, matching the target at the next level down.
+
+# Type Invocations define what is valid for the value at that key. Built-in types are as follows: String, Boolean, Integer, Decimal and List, corresponding to the usual YAML primitives. Where the invocation ends with a ?, the key/value is considered optional.
+
+# Type Invocations may include type parameters within square brackets, and range parameters within braces. For example List[String] defines a list of strings, and Integer{0..5} can be any integer between 0 and 5 inclusive. Regexes can be used as range parameters for strings, eg String{^\d+$} indicates a string made up of only digits, note that the regex must include the start and end anchors. Type parameters may be nested.
+
+# additional types can be defined, these are listed under context. Each entry consists of the type name, to which it is referred in Type Invocations, and a type def operating in the same way as the top level def. Additional types may extend a previously defined additional type, in which case its def is added to the def of its base type.  
+
+

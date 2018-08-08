@@ -15,10 +15,14 @@ public class BooleanRange extends TypeLiteral
 	@Override
 	public boolean validate( Object obj )
 	{
-		boolean b = (Boolean)obj;
-		return value != null ? b == value : true;
+		if ( obj != null && obj instanceof Boolean )
+		{
+			boolean b = (Boolean)obj;
+			return value != null ? b == value : true;
+		}
+		return false;
 	}
-	
+
 	public static String regex( )
 	{
 		return "true|false|any";

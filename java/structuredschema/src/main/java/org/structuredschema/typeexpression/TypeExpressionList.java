@@ -5,7 +5,6 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TypeExpressionList extends TypeExpression
@@ -43,12 +42,12 @@ public class TypeExpressionList extends TypeExpression
 	}
 
 	@Override
-	public void validate( Object val, Map<String,TypeDeclaration> context, List<String> errors )
+	public void validate( Object val, StructuredSchema schema, List<String> errors )
 	{
 		List<String> errs = new LinkedList<>( );
 		for ( TypeExpression expr : typeExpressions )
 		{
-			expr.validate( val, context, errs );
+			expr.validate( val, schema, errs );
 			if ( errs.isEmpty( ) )
 			{
 				return;

@@ -3,7 +3,6 @@ package org.structuredschema.typeexpression;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,52 +22,43 @@ public class DecimalInterval extends DecimalRange
 	@Override
 	public boolean validate( Object obj )
 	{
-		BigDecimal val = (BigDecimal)obj;
-		if ( (low != null ? low.compareTo( val ) <= 0 : true) && (high != null ? high.compareTo( val ) >= 0 : true) )
+		BigDecimal val = DecimalValue.convert( obj );
+		if ( val != null )
 		{
-			if ( step != null )
+			if ( (low != null ? low.compareTo( val ) <= 0 : true) && (high != null ? high.compareTo( val ) >= 0 : true) )
 			{
-				return val.subtract( low ).remainder( step ).equals( BigInteger.ZERO );
-			}
-			else
-			{
-				return true;
+				if ( step != null )
+				{
+					return val.subtract( low ).remainder( step ).signum( ) == 0;
+				}
+				else
+				{
+					return true;
+				}
 			}
 		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
 
 	public static DecimalInterval parseInterval( String str )
 	{
-		Pattern p = Pattern.compile( "(\\d*\\.\\d*)\\.\\.\\.(\\d*\\.\\d*)/(\\d*\\.\\d*)" );
+		Pattern p = Pattern.compile( "(?<low>\\d+\\.\\d+)?\\.\\.\\.(?<high>\\d+\\.\\d+)?(/(?<step>\\d+\\.\\d+))?" );
 		Matcher m = p.matcher( str );
 		if ( m.matches( ) )
 		{
-			return new DecimalInterval( parseDecimal( m.group( 1 ) ), parseDecimal( m.group( 2 ) ), parseDecimal( m.group( 3 ) ) );
+			return new DecimalInterval( parseDecimal( m.group( "low" ) ), parseDecimal( m.group( "high" ) ), parseDecimal( m.group( "step" ) ) );
 		}
 		else
 		{
-			p = Pattern.compile( "(\\d*\\.\\d*)\\.\\.\\.(\\d*\\.\\d*)" );
-			m = p.matcher( str );
-			if ( m.matches( ) )
-			{
-				return new DecimalInterval( parseDecimal( m.group( 1 ) ), parseDecimal( m.group( 2 ) ), null );
-			}
-			else
-			{
-				throw new RuntimeException( "bad str: " + str );
-			}
+			throw new RuntimeException( "bad str: " + str );
 		}
 	}
 
 	private static BigDecimal parseDecimal( String str )
 	{
-		return str.isEmpty( ) ? null : new BigDecimal( str );
+		return str == null ? null : new BigDecimal( str );
 	}
-	
+
 	@Override
 	public void compose( Writer writer ) throws IOException
 	{
@@ -87,7 +77,7 @@ public class DecimalInterval extends DecimalRange
 			writer.write( step.toString( ) );
 		}
 	}
-	
+
 	public static String regex( )
 	{
 		return "(DECIMAL)?\\.\\.\\.(DECIMAL)?(/DECIMAL)?".replace( "DECIMAL", DecimalValue.regex( ) );

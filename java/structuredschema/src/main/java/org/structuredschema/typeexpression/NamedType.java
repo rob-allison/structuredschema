@@ -62,18 +62,53 @@ public class NamedType extends TypeExpression
 	}
 
 	@Override
-	public void validate( Object val, Map<String,TypeDeclaration> context, List<String> errors )
+	public void validate( Object val, StructuredSchema schema, List<String> errors )
 	{
-		TypeDeclaration decl = context.get( name );
-		Object def = decl.getDefinition( );
-		for ( int i = 0; i < decl.getParameters( ).size( ); i++ )
+		if ( name.equals( "List" ) )
 		{
-			String pname = decl.getParameters( ).get( i );
-			TypeExpression pexpr = parameters.get( i );
-			def = replace( def, pname, pexpr );
+			if ( val instanceof List )
+			{
+				@SuppressWarnings("unchecked")
+				List<Object> vlist = (List<Object>)val;
+				TypeExpression idef = getParameter( 0 );
+				for ( Object item : vlist )
+				{
+					schema.validate( item, idef, errors );
+				}
+				TypeExpression ndef = getParameter( 1 );
+				schema.validate( vlist.size( ), ndef, errors );
+			}
+			else
+			{
+				errors.add( "list expected" );
+			}
 		}
-		
-		
+		else
+		{
+			TypeDeclaration decl = schema.get( name );
+			System.out.println( name );
+			Object def = decl.getDefinition( );
+			for ( int i = 0; i < decl.getParameters( ).size( ); i++ )
+			{
+				String pname = decl.getParameters( ).get( i );
+				TypeExpression pexpr = getParameter( i );
+				def = replace( def, pname, pexpr );
+			}
+
+			schema.validate( val, def, errors );
+		}
+	}
+
+	private TypeExpression getParameter( int i )
+	{
+		if ( i < parameters.size( ) )
+		{
+			return parameters.get( i );
+		}
+		else
+		{
+			return Wild.instance;
+		}
 	}
 
 	private Object replace( Object def, String pname, TypeExpression pexpr )

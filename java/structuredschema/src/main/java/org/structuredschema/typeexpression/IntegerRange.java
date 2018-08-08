@@ -11,7 +11,7 @@ public abstract class IntegerRange extends TypeLiteral
 		return "(INTEGER|INTERVAL)(,(INTEGER|INTERVAL))*".replace( "INTEGER", IntegerValue.regex( ) ).replace( "INTERVAL", IntegerInterval.regex( ) );
 	}
 
-	public static TypeLiteral parseRange( String expr )
+	public static TypeLiteral parseIntegerRange( String expr )
 	{
 		StringTokenizer toks = new StringTokenizer( expr, "," );
 		if ( toks.countTokens( ) == 0 )

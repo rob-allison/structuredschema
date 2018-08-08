@@ -11,7 +11,7 @@ public abstract class DecimalRange extends TypeLiteral
 		return "(DECIMAL|INTERVAL)(,(DECIMAL|INTERVAL))*".replace( "DECIMAL", DecimalValue.regex( ) ).replace( "INTERVAL", DecimalInterval.regex( ) );
 	}
 
-	public static TypeLiteral parseRange( String expr )
+	public static TypeLiteral parseDecimalRange( String expr )
 	{
 		StringTokenizer toks = new StringTokenizer( expr, "," );
 		if ( toks.countTokens( ) == 0 )

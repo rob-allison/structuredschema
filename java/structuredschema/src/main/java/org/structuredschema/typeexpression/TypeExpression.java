@@ -7,11 +7,10 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public abstract class TypeExpression
 {
-	public abstract void validate( Object val, Map<String,TypeDeclaration> context, List<String> errors );
+	public abstract void validate( Object val, StructuredSchema schema, List<String> errors );
 
 	public abstract TypeExpression replace( String name, TypeExpression expression );
 
@@ -31,7 +30,7 @@ public abstract class TypeExpression
 		return writer.toString( );
 	}
 
-	private static TypeExpression parse( String string )
+	public static TypeExpression parse( String string )
 	{
 		try
 		{
@@ -79,13 +78,28 @@ public abstract class TypeExpression
 					if ( first )
 					{
 						Regex regex = Regex.parseRegex( reader );
-						reader.read( );
-						return regex;
+						int d = reader.read( );
+						switch ( d )
+						{
+							case -1:
+							case ']':
+								return regex;
+							case '|':
+								System.out.println( regex.compose( ) );
+								exprs.add( regex );
+								builder = new StringBuilder( );
+								tparams = new LinkedList<>( );
+								first = true;
+								break;
+							default:
+								throw new RuntimeException( "unexpected char" );
+						}
+						break;
 					}
 				default:
 					builder.append( (char)c );
+					first = false;
 			}
-			first = false;
 		}
 	}
 
@@ -93,15 +107,23 @@ public abstract class TypeExpression
 	{
 		if ( expr.matches( IntegerRange.regex( ) ) )
 		{
-			return IntegerRange.parseRange( expr );
+			return IntegerRange.parseIntegerRange( expr );
 		}
 		else if ( expr.matches( DecimalRange.regex( ) ) )
 		{
-			return DecimalRange.parseRange( expr );
+			return DecimalRange.parseDecimalRange( expr );
 		}
 		else if ( expr.matches( BooleanRange.regex( ) ) )
 		{
 			return BooleanRange.parseBoolean( expr );
+		}
+		else if ( expr.matches( Null.regex( ) ) )
+		{
+			return Null.instance;
+		}
+		else if ( expr.matches( Wild.regex( ) ) )
+		{
+			return Wild.instance;
 		}
 		else
 		{
@@ -111,7 +133,7 @@ public abstract class TypeExpression
 
 	public static void main( String[] args )
 	{
-		TypeExpression expr = TypeExpression.parse( "MyType[Hello[world][how][2][/.*/][12.4e10][any]][123.5...123.6/0.01][12..15/2]" );
+		TypeExpression expr = TypeExpression.parse( "MyType[Hello[world][null][how][2][/.*/][12.4e10][any]][123.5...123.6/0.01][12..15/2]" );
 		System.out.println( expr.compose( ) );
 	}
 

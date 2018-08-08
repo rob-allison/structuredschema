@@ -19,25 +19,24 @@ public class IntegerInterval extends IntegerRange
 		this.step = step;
 	}
 
-	@Override
 	public boolean validate( Object obj )
 	{
-		BigInteger val = (BigInteger)obj;
-		if ( (low != null ? low.compareTo( val ) <= 0 : true) && (high != null ? high.compareTo( val ) >= 0 : true) )
+		BigInteger val = IntegerValue.convert( obj );
+		if ( val != null )
 		{
-			if ( step != null )
+			if ( (low != null ? low.compareTo( val ) <= 0 : true) && (high != null ? high.compareTo( val ) >= 0 : true) )
 			{
-				return val.subtract( low ).mod( step ).equals( BigInteger.ZERO );
-			}
-			else
-			{
-				return true;
+				if ( step != null )
+				{
+					return val.subtract( low ).remainder( step ).equals( BigInteger.ZERO );
+				}
+				else
+				{
+					return true;
+				}
 			}
 		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
 
 	public static String regex( )
@@ -47,30 +46,21 @@ public class IntegerInterval extends IntegerRange
 
 	public static IntegerInterval parseInterval( String str )
 	{
-		Pattern p = Pattern.compile( "(\\d*)\\.\\.(\\d*)/(\\d*)" );
+		Pattern p = Pattern.compile( "(?<low>\\d*)\\.\\.(?<high>\\d*)(/(?<step>\\d*))?" );
 		Matcher m = p.matcher( str );
 		if ( m.matches( ) )
 		{
-			return new IntegerInterval( parseInteger( m.group( 1 ) ), parseInteger( m.group( 2 ) ), parseInteger( m.group( 3 ) ) );
+			return new IntegerInterval( parseInteger( m.group( "low" ) ), parseInteger( m.group( "high" ) ), parseInteger( m.group( "step" ) ) );
 		}
 		else
 		{
-			p = Pattern.compile( "(\\d*)\\.\\.(\\d*)" );
-			m = p.matcher( str );
-			if ( m.matches( ) )
-			{
-				return new IntegerInterval( parseInteger( m.group( 1 ) ), parseInteger( m.group( 2 ) ), null );
-			}
-			else
-			{
-				throw new RuntimeException( "bad str: " + str );
-			}
+			throw new RuntimeException( "bad str: " + str );
 		}
 	}
 
 	private static BigInteger parseInteger( String str )
 	{
-		return str.isEmpty( ) ? null : new BigInteger( str );
+		return str == null || str.isEmpty( ) ? null : new BigInteger( str );
 	}
 
 	@Override
@@ -80,7 +70,7 @@ public class IntegerInterval extends IntegerRange
 		{
 			writer.write( low.toString( ) );
 		}
-		writer.write( "..." );
+		writer.write( ".." );
 		if ( high != null )
 		{
 			writer.write( high.toString( ) );

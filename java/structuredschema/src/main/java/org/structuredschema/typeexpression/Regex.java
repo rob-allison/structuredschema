@@ -18,11 +18,15 @@ public class Regex extends TypeLiteral
 	@Override
 	public boolean validate( Object obj )
 	{
-		Pattern p = Pattern.compile( regex );
-		Matcher m = p.matcher( (String)obj );
-		return m.matches( );
+		if ( obj != null && obj instanceof String )
+		{
+			Pattern p = Pattern.compile( regex );
+			Matcher m = p.matcher( (String)obj );
+			return m.matches( );
+		}
+		return false;
 	}
-	
+
 	public static Regex parseRegex( Reader reader ) throws IOException
 	{
 		StringBuilder builder = new StringBuilder( );
@@ -34,11 +38,11 @@ public class Regex extends TypeLiteral
 			{
 				case -1:
 					throw new RuntimeException( "/ expected" );
-					
+
 				case '\\':
 					escaped = true;
 					break;
-					
+
 				case '/':
 					if ( escaped )
 					{
@@ -69,6 +73,5 @@ public class Regex extends TypeLiteral
 		writer.write( regex.replace( "/", "\\/" ) );
 		writer.write( '/' );
 	}
-	
-	
+
 }

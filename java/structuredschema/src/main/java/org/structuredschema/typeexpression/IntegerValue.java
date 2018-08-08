@@ -16,8 +16,34 @@ public class IntegerValue extends IntegerRange
 	@Override
 	public boolean validate( Object obj )
 	{
-		BigInteger val = (BigInteger)obj;
-		return value.equals( val );
+		BigInteger val = convert( obj );
+		if ( val != null )
+		{
+			return value.equals( val );
+		}
+		return false;
+	}
+
+	public static BigInteger convert( Object obj )
+	{
+		if ( obj != null )
+		{
+			if ( obj instanceof BigInteger )
+			{
+				return (BigInteger)obj;
+			}
+			if ( obj instanceof Long )
+			{
+				Long val = (Long)obj;
+				return BigInteger.valueOf( val );
+			}
+			if ( obj instanceof Integer )
+			{
+				Integer val = (Integer)obj;
+				return BigInteger.valueOf( val );
+			}
+		}
+		return null;
 	}
 
 	@Override

@@ -16,8 +16,34 @@ public class DecimalValue extends DecimalRange
 	@Override
 	public boolean validate( Object obj )
 	{
-		BigDecimal val = (BigDecimal)obj;
-		return value.equals( val );
+		BigDecimal val = convert( obj );
+		if ( val != null )
+		{
+			return value.equals( val );
+		}
+		return false;
+	}
+
+	public static BigDecimal convert( Object obj )
+	{
+		if ( obj != null )
+		{
+			if ( obj instanceof BigDecimal )
+			{
+				return (BigDecimal)obj;
+			}
+			if ( obj instanceof Double )
+			{
+				Double val = (Double)obj;
+				return BigDecimal.valueOf( val );
+			}
+			if ( obj instanceof Float )
+			{
+				Float val = (Float)obj;
+				return BigDecimal.valueOf( val );
+			}
+		}
+		return null;
 	}
 
 	@Override

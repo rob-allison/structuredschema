@@ -22,7 +22,4 @@ public class TypeDeclaration
 	{
 		return definition;
 	}
-	
-	
-
 }

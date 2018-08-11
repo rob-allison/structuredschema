@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 
-public class DecimalValue extends DecimalRange
+public class DecimalValue extends TypeLiteral
 {
 	private final BigDecimal value;
 
@@ -19,7 +19,7 @@ public class DecimalValue extends DecimalRange
 		BigDecimal val = convert( obj );
 		if ( val != null )
 		{
-			return value.equals( val );
+			return value.compareTo( val ) == 0;
 		}
 		return false;
 	}

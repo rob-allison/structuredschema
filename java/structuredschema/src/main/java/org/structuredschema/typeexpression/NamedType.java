@@ -3,6 +3,7 @@ package org.structuredschema.typeexpression;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,50 +54,134 @@ public class NamedType extends TypeExpression
 	public void compose( Writer writer ) throws IOException
 	{
 		writer.write( name );
-		for ( TypeExpression tparam : parameters )
+		if ( !parameters.isEmpty( ) )
 		{
-			writer.write( '[' );
-			tparam.compose( writer );
-			writer.write( ']' );
+			writer.write( '(' );
+			for ( Iterator<TypeExpression> iter = parameters.iterator( ); iter.hasNext( ); )
+			{
+				TypeExpression tparam = iter.next( );
+				tparam.compose( writer );
+				if ( iter.hasNext( ) )
+				{
+					writer.write( ',' );
+				}
+			}
+			writer.write( ')' );
 		}
 	}
 
 	@Override
-	public void validate( Object val, StructuredSchema schema, List<String> errors )
+	public void validate( Object val, StructuredSchema schema, Errors errors )
 	{
-		if ( name.equals( "List" ) )
+		if ( name.equals( "Object" ) )
 		{
-			if ( val instanceof List )
+			if ( !(val != null && val instanceof Map) )
+			{
+				errors.add( "object expected" );
+			}
+		}
+		else if ( name.equals( "Array" ) )
+		{
+			if ( val != null && val instanceof List )
 			{
 				@SuppressWarnings("unchecked")
 				List<Object> vlist = (List<Object>)val;
 				TypeExpression idef = getParameter( 0 );
-				for ( Object item : vlist )
+				for ( int i = 0; i < vlist.size( ); i++ )
 				{
-					schema.validate( item, idef, errors );
+					Object item = vlist.get( i );
+					schema.validate( item, idef, errors.item( i, item ) );
 				}
 				TypeExpression ndef = getParameter( 1 );
-				schema.validate( vlist.size( ), ndef, errors );
+				schema.validate( vlist.size( ), ndef, errors.field( "!size", vlist.size( ) ) );
 			}
 			else
 			{
-				errors.add( "list expected" );
+				errors.add( "array expected" );
 			}
 		}
 		else
 		{
 			TypeDeclaration decl = schema.get( name );
-			System.out.println( name );
-			Object def = decl.getDefinition( );
-			for ( int i = 0; i < decl.getParameters( ).size( ); i++ )
+
+			decl = subtype( val, decl, schema, errors );
+
+			if ( !decl.isAbstract( ) )
 			{
-				String pname = decl.getParameters( ).get( i );
-				TypeExpression pexpr = getParameter( i );
-				def = replace( def, pname, pexpr );
+				Object def = extend( decl, schema );
+
+				for ( int i = 0; i < decl.getParameters( ).size( ); i++ )
+				{
+					String pname = decl.getParameters( ).get( i );
+					TypeExpression pexpr = getParameter( i );
+					def = replace( def, pname, pexpr );
+				}
+
+				schema.validate( val, def, errors );
+			}
+			else
+			{
+				throw new RuntimeException( "abstract declaration" );
+			}
+		}
+	}
+
+	private Object extend( TypeDeclaration decl, StructuredSchema schema )
+	{
+		Object def = decl.getDefinition( );
+		String ext = decl.getExtnds( );
+		if ( ext != null )
+		{
+			TypeDeclaration edecl = schema.get( ext );
+			@SuppressWarnings("unchecked")
+			Map<String,Object> emap = (Map<String,Object>)extend( edecl, schema );
+			@SuppressWarnings("unchecked")
+			Map<String,Object> map = (Map<String,Object>)def;
+			Map<String,Object> result = new HashMap<String,Object>( );
+			result.putAll( emap );
+			result.putAll( map );
+			return result;
+		}
+		return def;
+	}
+
+	private TypeDeclaration subtype( Object val, TypeDeclaration decl, StructuredSchema schema, Errors errors )
+	{
+		Object def = decl.getDefinition( );
+
+		if ( def instanceof Map )
+		{
+			@SuppressWarnings("unchecked")
+			Map<String,Object> map = (Map<String,Object>)def;
+
+			String discrim = null;
+			for ( Map.Entry<String,Object> entry : map.entrySet( ) )
+			{
+				FieldValueExpression fvexpr = (FieldValueExpression)entry.getValue( );
+				if ( fvexpr.getExpression( ) == Discriminator.instance )
+				{
+					discrim = entry.getKey( );
+				}
 			}
 
-			schema.validate( val, def, errors );
+			if ( discrim != null )
+			{
+				if ( val instanceof Map )
+				{
+					@SuppressWarnings("unchecked")
+					Map<String,Object> vmap = (Map<String,Object>)val;
+					String sub = (String)vmap.get( discrim );
+					decl = schema.get( sub );
+					// subtype( val, decl, schema );
+				}
+				else
+				{
+					errors.add( "object expected" );
+				}
+			}
 		}
+
+		return decl;
 	}
 
 	private TypeExpression getParameter( int i )
@@ -117,6 +202,11 @@ public class NamedType extends TypeExpression
 		{
 			TypeExpression expr = (TypeExpression)def;
 			return expr.replace( pname, pexpr );
+		}
+		else if ( def instanceof FieldValueExpression )
+		{
+			FieldValueExpression fvexpr = (FieldValueExpression)def;
+			return fvexpr.replace( pname, pexpr );
 		}
 		else if ( def instanceof Map )
 		{
@@ -142,7 +232,7 @@ public class NamedType extends TypeExpression
 		}
 		else
 		{
-			throw new RuntimeException( "bad type" );
+			throw new RuntimeException( "bad type: " + def );
 		}
 	}
 }

@@ -42,22 +42,27 @@ public class TypeExpressionList extends TypeExpression
 	}
 
 	@Override
-	public void validate( Object val, StructuredSchema schema, List<String> errors )
+	public void validate( Object val, StructuredSchema schema, Errors errors )
 	{
-		List<String> errs = new LinkedList<>( );
+		List<Errors> dets = new LinkedList<>( );
 		for ( TypeExpression expr : typeExpressions )
 		{
-			expr.validate( val, schema, errs );
-			if ( errs.isEmpty( ) )
+			Errors det = errors.detach( );
+			expr.validate( val, schema, det );
+			if ( det.isEmpty( ) )
 			{
 				return;
 			}
 			else
 			{
-				errs = new LinkedList<>( );
+				dets.add( det );
 			}
 		}
-		errors.add( "cannot validate union" );
+				
+		for ( Errors det : dets )
+		{
+			errors.repend( det );
+		}
 	}
 	
 	

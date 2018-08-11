@@ -3,11 +3,11 @@ package org.structuredschema.typeexpression;
 import java.io.IOException;
 import java.io.Writer;
 
-public class BooleanRange extends TypeLiteral
+public class BooleanValue extends TypeLiteral
 {
 	private final Boolean value;
 
-	public BooleanRange( Boolean value )
+	public BooleanValue( Boolean value )
 	{
 		this.value = value;
 	}
@@ -25,22 +25,18 @@ public class BooleanRange extends TypeLiteral
 
 	public static String regex( )
 	{
-		return "true|false|any";
+		return "true|false";
 	}
 
-	public static BooleanRange parseBoolean( String expr )
+	public static BooleanValue parseBoolean( String expr )
 	{
 		if ( expr.equals( "true" ) )
 		{
-			return new BooleanRange( true );
+			return new BooleanValue( true );
 		}
 		else if ( expr.equals( "false" ) )
 		{
-			return new BooleanRange( false );
-		}
-		else if ( expr.equals( "any" ) )
-		{
-			return new BooleanRange( null );
+			return new BooleanValue( false );
 		}
 		else
 		{
@@ -51,6 +47,6 @@ public class BooleanRange extends TypeLiteral
 	@Override
 	public void compose( Writer writer ) throws IOException
 	{
-		writer.write( value != null ? (value ? "true" : "false") : "any" );
+		writer.write( value ? "true" : "false" );
 	}
 }

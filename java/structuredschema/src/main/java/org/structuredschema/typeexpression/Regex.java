@@ -15,6 +15,16 @@ public class Regex extends TypeLiteral
 		this.regex = regex;
 	}
 
+	public static String regex( )
+	{
+		return "^/.*/$";
+	}
+
+	public static Regex parseRegex( String str )
+	{
+		return new Regex( str.substring( 1, str.length( ) - 1 ) );
+	}
+
 	@Override
 	public boolean validate( Object obj )
 	{
@@ -27,10 +37,9 @@ public class Regex extends TypeLiteral
 		return false;
 	}
 
-	public static Regex parseRegex( Reader reader ) throws IOException
+	public static String tokenizeRegex( Reader reader ) throws IOException
 	{
 		StringBuilder builder = new StringBuilder( );
-		boolean escaped = false;
 		while ( true )
 		{
 			int c = reader.read( );
@@ -39,28 +48,10 @@ public class Regex extends TypeLiteral
 				case -1:
 					throw new RuntimeException( "/ expected" );
 
-				case '\\':
-					escaped = true;
-					break;
-
 				case '/':
-					if ( escaped )
-					{
-						escaped = false;
-						builder.append( '/' );
-						break;
-					}
-					else
-					{
-						return new Regex( builder.toString( ) );
-					}
+					return builder.toString( );
 
 				default:
-					if ( escaped )
-					{
-						escaped = false;
-						builder.append( '\\' );
-					}
 					builder.append( (char)c );
 			}
 		}
@@ -70,7 +61,7 @@ public class Regex extends TypeLiteral
 	public void compose( Writer writer ) throws IOException
 	{
 		writer.write( '/' );
-		writer.write( regex.replace( "/", "\\/" ) );
+		writer.write( regex.replace( "/", "//" ) );
 		writer.write( '/' );
 	}
 

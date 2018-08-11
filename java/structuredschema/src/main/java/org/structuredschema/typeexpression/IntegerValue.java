@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.math.BigInteger;
 
-public class IntegerValue extends IntegerRange
+public class IntegerValue extends TypeLiteral
 {
 	private final BigInteger value;
 

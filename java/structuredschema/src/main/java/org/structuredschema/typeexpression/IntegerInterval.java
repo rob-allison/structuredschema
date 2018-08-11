@@ -6,7 +6,7 @@ import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class IntegerInterval extends IntegerRange
+public class IntegerInterval extends TypeLiteral
 {
 	private final BigInteger low;
 	private final BigInteger high;

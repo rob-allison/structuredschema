@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class StructuredSchema
 {
 	private final Object root;
-	private final Map<String,TypeDeclaration> rootcontext;
+	private final Map<String,TypeDeclaration_> rootcontext;
 
 	public StructuredSchema( Object schema ) throws ValidationException
 	{
@@ -37,16 +37,16 @@ public class StructuredSchema
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String,TypeDeclaration> buildContext( List<Object> defs )
+	private Map<String,TypeDeclaration_> buildContext( List<Object> defs )
 	{
-		Map<String,TypeDeclaration> context = new HashMap<String,TypeDeclaration>( );
+		Map<String,TypeDeclaration_> context = new HashMap<String,TypeDeclaration_>( );
 
 		for ( Object def : defs )
 		{
 			Map<String,Object> td = (Map<String,Object>)def;
 			ParameterisedName ptype = ParameterisedName.parse( (String)td.get( "name" ) );
 			Boolean abs = (Boolean)td.getOrDefault( "abstract", Boolean.FALSE );
-			TypeDeclaration tdef = new TypeDeclaration( ptype, td.get( "def" ), (String)td.get( "extends" ), abs );
+			TypeDeclaration_ tdef = new TypeDeclaration_( ptype, td.get( "def" ), (String)td.get( "extends" ), abs );
 			if ( context.put( ptype.getName( ), tdef ) != null )
 			{
 				throw new RuntimeException( "duplicate defs" );
@@ -67,7 +67,7 @@ public class StructuredSchema
 	}
 
 	@SuppressWarnings("unchecked")
-	private void validate( Map<String,TypeDeclaration> context, String path, Object data, Object type, List<String> fails )
+	private void validate( Map<String,TypeDeclaration_> context, String path, Object data, Object type, List<String> fails )
 	{
 		if ( type instanceof String )
 		{
@@ -277,7 +277,7 @@ public class StructuredSchema
 						break;
 
 					default:
-						TypeDeclaration td = context.get( tname );
+						TypeDeclaration_ td = context.get( tname );
 						if ( td != null )
 						{
 							td = td.applyParameters( params, ranges );
@@ -303,7 +303,7 @@ public class StructuredSchema
 									if ( discrim != null )
 									{
 										String polyname = (String)map.get( discrim );
-										TypeDeclaration polytd = context.get( polyname );
+										TypeDeclaration_ polytd = context.get( polyname );
 										if ( polytd != null )
 										{
 											if ( isSubtype( context, polytd, tname ) )
@@ -382,13 +382,13 @@ public class StructuredSchema
 		}
 	}
 
-	private Map<String,Object> inheritDefinitions( Map<String,TypeDeclaration> context, TypeDeclaration typ )
+	private Map<String,Object> inheritDefinitions( Map<String,TypeDeclaration_> context, TypeDeclaration_ typ )
 	{
 		Map<String,Object> def = new HashMap<String,Object>( );
 		String ext = typ.getExtends( );
 		if ( ext != null )
 		{
-			TypeDeclaration supertyp = context.get( ext );
+			TypeDeclaration_ supertyp = context.get( ext );
 			Map<String,Object> superdef = inheritDefinitions( context, supertyp );
 			def.putAll( superdef );
 		}
@@ -396,7 +396,7 @@ public class StructuredSchema
 		return def;
 	}
 
-	private boolean isSubtype( Map<String,TypeDeclaration> context, TypeDeclaration typ, String base )
+	private boolean isSubtype( Map<String,TypeDeclaration_> context, TypeDeclaration_ typ, String base )
 	{
 		String ext = typ.getExtends( );
 		if ( ext != null )
@@ -407,7 +407,7 @@ public class StructuredSchema
 			}
 			else
 			{
-				TypeDeclaration supertyp = context.get( ext );
+				TypeDeclaration_ supertyp = context.get( ext );
 				return isSubtype( context, supertyp, base );
 			}
 		}
@@ -530,7 +530,7 @@ public class StructuredSchema
 		return false;
 	}
 
-	private void validateObject( Map<String,TypeDeclaration> context, String path, Map<String,Object> data, Map<String,Object> schema, List<String> fails )
+	private void validateObject( Map<String,TypeDeclaration_> context, String path, Map<String,Object> data, Map<String,Object> schema, List<String> fails )
 	{
 		for ( Map.Entry<String,Object> sent : schema.entrySet( ) )
 		{

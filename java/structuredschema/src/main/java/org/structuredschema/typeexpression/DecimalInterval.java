@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DecimalInterval extends DecimalRange
+public class DecimalInterval extends TypeLiteral
 {
 	private final BigDecimal low;
 	private final BigDecimal high;

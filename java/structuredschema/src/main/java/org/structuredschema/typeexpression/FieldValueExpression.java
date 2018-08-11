@@ -21,7 +21,7 @@ public class FieldValueExpression
 		return expression;
 	}
 	
-	public static FieldValueExpression parse( String str )
+	public static FieldValueExpression read( String str )
 	{
 		if ( str.endsWith( "?" ) )
 		{
@@ -32,6 +32,11 @@ public class FieldValueExpression
 		{
 			return new FieldValueExpression( true, TypeExpression.parse( str ) );
 		}
+	}
+
+	public Object replace( String pname, TypeExpression pexpr )
+	{
+		return new FieldValueExpression( required, expression.replace( pname, pexpr ) );
 	}
 
 }

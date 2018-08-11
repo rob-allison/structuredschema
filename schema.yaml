@@ -1,9 +1,9 @@
 # This document serves as a schema for mv.yaml, instructions on how to interpret it are provided at the bottom.
 
 def:
-  feeds: List[Feed]                     # list of feeds
-  vizers: List[Vizer]                   # list of vizers
-  connect: List[Connect]                # list of connections between feeds and vizers
+  feeds: Array(Feed)                     # list of feeds
+  vizers: Array(Vizer)                   # list of vizers
+  connect: Array(Connect)                # list of connections between feeds and vizers
   home: Directory?                      # optionally define the directory structure when browsing MetriVision
   admin-link: Boolean?                  # display admin link (cog), defaults to true
 
@@ -76,7 +76,7 @@ context:
   - name: CsvParser                     # CSV parser, expects input to be CSV structured text.
     extends: StructuredParser
     def:
-      headers: List[String]?            # optionally provide a list of headers, if an empty list is provided the first row is read in as headers.
+      headers: Array(String)?            # optionally provide a list of headers, if an empty list is provided the first row is read in as headers.
 
   - name: ProtobufParser                # Protobuf parser (TBD)
     extends: StructuredParser
@@ -88,8 +88,8 @@ context:
       filter: Filter?                   # optionally specify a filter
       persist: TimeInterval?            # time to persist painted data - defaults to persist forever
       compact: TimeInterval?            # time to compact rows or columns that have received no data in that period - defaults to never compact
-      x: List[Dimension]                # list of dimensions for the x axis
-      y: List[Dimension]                # list of dimensions for the y axis
+      x: Array(Dimension)                # list of dimensions for the x axis
+      y: Array(Dimension)                # list of dimensions for the y axis
       color: Colorizer                  # specify the required colorizer
       record: TimeInterval?             # rolling time period for which a recording is kept, defaults to no recording
       consumer: FrameConsumer?          # (TBD)
@@ -103,7 +103,7 @@ context:
     extends: Filter
     def:
       key: String                       # a JSON path into the event data
-      values: List[Any]                 # a list of matching values found at the path location in the event data
+      values: Array(*)                  # a list of matching values found at the path location in the event data
 
   - name: IntegerRangeFilter   
     extends: Filter
@@ -218,7 +218,7 @@ context:
     extends: Colorizer
     def:
       key: String                       # json path into event data structure to find the string value
-      colors: List[Keyed[HexColor]]     # list of colors keyed by string value
+      colors: Array[Keyed[HexColor]]     # list of colors keyed by string value
 
   - name: ScalarColorizer               # map a scalar interval to a color range
     extends: Colorizer
@@ -260,7 +260,7 @@ context:
     extends: Colorizer
     def:
       key: String                       # json path into event data structure to find the string value
-      colorizers: List[Keyed[Colorizer]]  # list of colorizers keyed by string value
+      colorizers: Array(Keyed(Colorizer)) # list of colorizers keyed by string value
 
   - name: ColorRange                    # base color range definition common to all color ranges
     def:
@@ -282,12 +282,12 @@ context:
   - name: Connect                       # connections for a feed
     def:
       feed: String                      # name of the feed
-      vizers: List[String]              # list of names of the vizers fed from this feed
+      vizers: Array(String)              # list of names of the vizers fed from this feed
 
   - name: Directory                     # directory definition
     def:
       name: String                      # name of the directory
-      contents: List[Directory|String]  # contents of directory as filenames or child directories
+      contents: Array(Directory|String)  # contents of directory as filenames or child directories
 
   - name: TimeInterval
     def: /^\d+[ywdhms]$/                # defines a time interval as an integer suffixed with one of ywdhms for years, weeks, days, hours, minutes, seconds
@@ -295,7 +295,7 @@ context:
   - name: HexColor
     def: /^#\p{XDigit}{6}$/             # defines a 32 bit color using the HEX definition #RRGGBB
 
-  - name: Keyed[T]                      # a key value pair, where the key is a string
+  - name: Keyed(T)                      # a key value pair, where the key is a string
     def:
       key: String                       # key as a string
       value: T                          # value
@@ -304,9 +304,9 @@ context:
 
 # def defines the top level structure expected of the target document. Each key under def matches a key to be found at the top level of the target document. Each value is either a Type Invocation as a string, or a YAML object with further key values, matching the target at the next level down.
 
-# Type Invocations define what is valid for the value at that key. Built-in types are as follows: String, Boolean, Integer, Decimal and List, corresponding to the usual YAML primitives. Where the invocation ends with a ?, the key/value is considered optional.
+# Type Invocations define what is valid for the value at that key. Built-in types are as follows: String, Boolean, Integer, Decimal and Array, corresponding to the usual YAML primitives. Where the invocation ends with a ?, the key/value is considered optional.
 
-# Type Invocations may include type parameters within square brackets, and range parameters within braces. For example List[String] defines a list of strings, and Integer{0..5} can be any integer between 0 and 5 inclusive. Regexes can be used as range parameters for strings, eg String{^\d+$} indicates a string made up of only digits, note that the regex must include the start and end anchors. Type parameters may be nested.
+# Type Invocations may include type parameters within square brackets, and range parameters within braces. For example Array[String] defines a list of strings, and Integer{0..5} can be any integer between 0 and 5 inclusive. Regexes can be used as range parameters for strings, eg String{^\d+$} indicates a string made up of only digits, note that the regex must include the start and end anchors. Type parameters may be nested.
 
 # additional types can be defined, these are listed under context. Each entry consists of the type name, to which it is referred in Type Invocations, and a type def operating in the same way as the top level def. Additional types may extend a previously defined additional type, in which case its def is added to the def of its base type.  
 

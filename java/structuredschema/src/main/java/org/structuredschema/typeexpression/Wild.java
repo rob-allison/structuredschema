@@ -9,7 +9,7 @@ public class Wild extends TypeLiteral
 	
 	public static String regex( )
 	{
-		return "\\*";
+		return "^\\*$";
 	}
 	
 	@Override

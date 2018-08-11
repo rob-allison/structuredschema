@@ -1,17 +1,15 @@
 package org.structuredschema.typeexpression;
 
-import java.util.List;
-
 public abstract class TypeLiteral extends TypeExpression
 {
 	public abstract boolean validate( Object obj );
 
 	@Override
-	public void validate( Object val, StructuredSchema schema, List<String> errors )
+	public void validate( Object val, StructuredSchema schema, Errors errors )
 	{
 		if ( !validate( val ) )
 		{
-			errors.add( "literal unmatched: " + val + " " + compose( ) );
+			errors.add( "literal unmatched: " + this );
 		}
 	}
 

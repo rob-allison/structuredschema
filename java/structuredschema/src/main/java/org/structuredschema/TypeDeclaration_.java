@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class TypeDeclaration
+public class TypeDeclaration_
 {
 	private final ParameterisedName name;
 	private final String alias;
@@ -15,7 +15,7 @@ public class TypeDeclaration
 	private final boolean abstrct;
 
 	@SuppressWarnings("unchecked")
-	public TypeDeclaration( ParameterisedName name, Object obj, String extnds, boolean abstrct )
+	public TypeDeclaration_( ParameterisedName name, Object obj, String extnds, boolean abstrct )
 	{
 		this.name = name;
 		
@@ -68,7 +68,7 @@ public class TypeDeclaration
 		return abstrct;
 	}
 
-	public TypeDeclaration applyParameters( String[] tvals, String[] rvals )
+	public TypeDeclaration_ applyParameters( String[] tvals, String[] rvals )
 	{
 		String[] tparams = name.getTypes( );
 		String[] rparams = name.getRanges( );
@@ -82,7 +82,7 @@ public class TypeDeclaration
 		if ( isAlias( ) )
 		{
 			String al = replaceParameters( alias, tparams, tvals, rparams, rvals );
-			return new TypeDeclaration( name.stripParameters( ti, ri ), al, null, abstrct );
+			return new TypeDeclaration_( name.stripParameters( ti, ri ), al, null, abstrct );
 		}
 		else
 		{
@@ -97,7 +97,7 @@ public class TypeDeclaration
 				df.put( en.getKey( ), replaceParameters( (String)en.getValue( ), tparams, tvals, rparams, rvals ) );
 			}
 
-			return new TypeDeclaration( name.stripParameters( ti, ri ), df, ex, abstrct );
+			return new TypeDeclaration_( name.stripParameters( ti, ri ), df, ex, abstrct );
 		}
 	}
 

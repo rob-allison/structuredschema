@@ -5,18 +5,19 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 public abstract class TypeExpression
 {
-	public abstract void validate( Object val, StructuredSchema schema, List<String> errors );
+	public abstract void validate( Object val, StructuredSchema schema, Errors errors );
 
 	public abstract TypeExpression replace( String name, TypeExpression expression );
 
 	public abstract void compose( Writer writer ) throws IOException;
 
-	public String compose( )
+	public String toString( )
 	{
 		StringWriter writer = new StringWriter( );
 		try
@@ -44,78 +45,138 @@ public abstract class TypeExpression
 
 	public static TypeExpression parse( Reader reader ) throws IOException
 	{
-		List<TypeExpression> exprs = new LinkedList<>( );
-		StringBuilder builder = new StringBuilder( );
-		List<TypeExpression> tparams = new LinkedList<>( );
+		List<String> toks = tokenize( reader );
+		return parse( toks.iterator( ) );
+	}
 
-		boolean first = true;
+	public static TypeExpression parse( Iterator<String> iter ) throws IOException
+	{
+		List<TypeExpression> exprs = new LinkedList<>( );
+		List<TypeExpression> tparams = new LinkedList<>( );
+		String last = null;
+
+		while ( iter.hasNext( ) )
+		{
+			String tok = iter.next( );
+			switch ( tok )
+			{
+				case ")":
+					if ( exprs.isEmpty( ) )
+					{
+						return parse( last, tparams );
+					}
+					else
+					{
+						exprs.add( parse( last, tparams ) );
+						return new TypeExpressionList( exprs );
+					}
+				case "|":
+					exprs.add( parse( last, tparams ) );
+					last = null;
+					tparams = new LinkedList<>( );
+					break;
+				case "(":
+					TypeExpression tparam = parse( iter );
+					tparams.add( tparam );
+					break;
+				default:
+					last = tok;
+			}
+		}
+
+		if ( exprs.isEmpty( ) )
+		{
+			return parse( last, tparams );
+		}
+		else
+		{
+			exprs.add( parse( last, tparams ) );
+			return new TypeExpressionList( exprs );
+		}
+	}
+
+	private static List<String> tokenize( Reader reader ) throws IOException
+	{
+		List<String> result = new LinkedList<>( );
+		StringBuilder builder = new StringBuilder( );
 		while ( true )
 		{
 			int c = reader.read( );
 			switch ( c )
 			{
 				case -1:
-				case ']':
-					if ( exprs.isEmpty( ) )
+					if ( !builder.toString( ).isEmpty( ) )
 					{
-						return parse( builder.toString( ), tparams );
+						result.add( builder.toString( ) );
+					}
+					return result;
+				case '(':
+				case ')':
+				case '|':
+					if ( !builder.toString( ).isEmpty( ) )
+					{
+						result.add( builder.toString( ) );
+					}
+					result.add( String.valueOf( (char)c ) );
+					builder = new StringBuilder( );
+					break;
+				case ',':
+					if ( !builder.toString( ).isEmpty( ) )
+					{
+						result.add( builder.toString( ) );
+					}
+					result.add( String.valueOf( ')' ) );
+					result.add( String.valueOf( '(' ) );
+					builder = new StringBuilder( );
+					break;
+				case '/':
+					if ( builder.toString( ).isEmpty( ) )
+					{
+						String rg = Regex.tokenizeRegex( reader );
+						if ( !result.isEmpty( ) && result.get( result.size( ) - 1 ).startsWith( "/" ) )
+						{
+							String last = result.remove( result.size( ) - 1 );
+							last = last.substring( 1, last.length( ) - 1 );
+							rg = last + "/" + rg;
+						}
+						result.add( "/" + rg + "/" );
 					}
 					else
 					{
-						exprs.add( parse( builder.toString( ), tparams ) );
-						return new TypeExpressionList( exprs );
+						builder.append( (char)c );
 					}
-				case '|':
-					exprs.add( parse( builder.toString( ), tparams ) );
-					builder = new StringBuilder( );
-					tparams = new LinkedList<>( );
 					break;
-				case '[':
-					TypeExpression tparam = parse( reader );
-					tparams.add( tparam );
-					break;
-				case '/':
-					if ( first )
-					{
-						Regex regex = Regex.parseRegex( reader );
-						int d = reader.read( );
-						switch ( d )
-						{
-							case -1:
-							case ']':
-								return regex;
-							case '|':
-								System.out.println( regex.compose( ) );
-								exprs.add( regex );
-								builder = new StringBuilder( );
-								tparams = new LinkedList<>( );
-								first = true;
-								break;
-							default:
-								throw new RuntimeException( "unexpected char" );
-						}
-						break;
-					}
 				default:
 					builder.append( (char)c );
-					first = false;
 			}
 		}
 	}
 
 	private static TypeExpression parse( String expr, List<TypeExpression> tparams )
 	{
-		if ( expr.matches( IntegerRange.regex( ) ) )
+		if ( expr.matches( IntegerValue.regex( ) ) )
 		{
-			return IntegerRange.parseIntegerRange( expr );
+			return IntegerValue.parseValue( expr );
 		}
-		else if ( expr.matches( DecimalRange.regex( ) ) )
+		else if ( expr.matches( IntegerInterval.regex( ) ) )
 		{
-			return DecimalRange.parseDecimalRange( expr );
+			return IntegerInterval.parseInterval( expr );
 		}
-		else if ( expr.matches( BooleanRange.regex( ) ) )
+		else if ( expr.matches( DecimalValue.regex( ) ) )
 		{
-			return BooleanRange.parseBoolean( expr );
+			return DecimalValue.parseValue( expr );
+		}
+		else if ( expr.matches( DecimalInterval.regex( ) ) )
+		{
+			return DecimalInterval.parseInterval( expr );
+		}
+		else if ( expr.matches( BooleanValue.regex( ) ) )
+		{
+			return BooleanValue.parseBoolean( expr );
+		}
+		else if ( expr.matches( Regex.regex( ) ) )
+		{
+			return Regex.parseRegex( expr );
 		}
 		else if ( expr.matches( Null.regex( ) ) )
 		{
@@ -125,16 +186,13 @@ public abstract class TypeExpression
 		{
 			return Wild.instance;
 		}
+		else if ( expr.matches( Discriminator.regex( ) ) )
+		{
+			return Discriminator.instance;
+		}
 		else
 		{
 			return new NamedType( expr, tparams );
 		}
 	}
-
-	public static void main( String[] args )
-	{
-		TypeExpression expr = TypeExpression.parse( "MyType[Hello[world][null][how][2][/.*/][12.4e10][any]][123.5...123.6/0.01][12..15/2]" );
-		System.out.println( expr.compose( ) );
-	}
-
 }

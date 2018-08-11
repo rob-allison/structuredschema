@@ -1,4 +1,4 @@
-package org.structuredschema.typeexpression;
+package org.structuredschema;
 
 public class FieldValueExpression
 {

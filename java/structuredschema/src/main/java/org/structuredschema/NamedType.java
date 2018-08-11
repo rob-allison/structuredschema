@@ -1,4 +1,4 @@
-package org.structuredschema.typeexpression;
+package org.structuredschema;
 
 import java.io.IOException;
 import java.io.Writer;

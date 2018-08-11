@@ -1,590 +1,333 @@
 package org.structuredschema;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import org.yaml.snakeyaml.Yaml;
 
 public class StructuredSchema
 {
-	private final Object root;
-	private final Map<String,TypeDeclaration_> rootcontext;
+	private final Object def;
+	private final Map<String,TypeDeclaration> context;
 
-	public StructuredSchema( Object schema ) throws ValidationException
+	public static StructuredSchema read( Object schema )
 	{
-		this( schema, true );
-	}
-
-	@SuppressWarnings("unchecked")
-	private StructuredSchema( Object schema, boolean validate ) throws ValidationException
-	{
-		if ( validate )
+		if ( schema instanceof Map )
 		{
-			Object schsch = buildSchemaSchema( );
-			StructuredSchema sch = new StructuredSchema( schsch, false );
-			sch.validate( schsch );
-			sch.validate( schema );
-		}
-
-		Map<String,Object> map = (Map<String,Object>)schema;
-		this.root = map.get( "def" );
-		List<Object> defs = (List<Object>)map.get( "context" );
-		this.rootcontext = buildContext( defs );
-	}
-
-	@SuppressWarnings("unchecked")
-	private Map<String,TypeDeclaration_> buildContext( List<Object> defs )
-	{
-		Map<String,TypeDeclaration_> context = new HashMap<String,TypeDeclaration_>( );
-
-		for ( Object def : defs )
-		{
-			Map<String,Object> td = (Map<String,Object>)def;
-			ParameterisedName ptype = ParameterisedName.parse( (String)td.get( "name" ) );
-			Boolean abs = (Boolean)td.getOrDefault( "abstract", Boolean.FALSE );
-			TypeDeclaration_ tdef = new TypeDeclaration_( ptype, td.get( "def" ), (String)td.get( "extends" ), abs );
-			if ( context.put( ptype.getName( ), tdef ) != null )
+			@SuppressWarnings("unchecked")
+			Map<String,Object> map = (Map<String,Object>)schema;
+			Object def = map.get( "def" );
+			Object context = map.get( "context" );
+			if ( context == null )
 			{
-				throw new RuntimeException( "duplicate defs" );
+				context = new LinkedList<>( );
 			}
+			return new StructuredSchema( readDef( def ), readContext( context ) );
 		}
+		else if ( schema instanceof String )
+		{
+			return new StructuredSchema( readDef( schema ), new HashMap<String,TypeDeclaration>( ) );
+		}
+		else
+		{
+			throw new RuntimeException( "bad schema" );
+		}
+	}
 
+	private StructuredSchema( Object def, Map<String,TypeDeclaration> context )
+	{
+		this.def = def;
+		this.context = enhance( context );
+	}
+
+	private static Map<String,TypeDeclaration> enhance( Map<String,TypeDeclaration> context )
+	{
+		List<Object> builtins = new LinkedList<Object>( );
+		builtins.add( builtin( "Boolean", "true|false" ) );
+		builtins.add( builtin( "Integer", ".." ) );
+		builtins.add( builtin( "Decimal", "..." ) );
+		builtins.add( builtin( "String", "/.*/" ) );
+		builtins.add( builtin( "PositiveInteger", "0.." ) );
+		builtins.add( builtin( "PositiveDecimal", "0.0..." ) );
+		builtins.add( builtin( "Number", "..|..." ) );
+		builtins.add( builtin( "PositiveNumber", "0..|0.0..." ) );
+		builtins.add( builtin( "WholeNumber", "..|.../1.0" ) );
+		builtins.add( builtin( "NonEmptyString", "/.+/" ) );
+		builtins.add( builtin( "Scalar", "Boolean|Integer|Decimal|String" ) );
+		builtins.add( builtin( "NotNull", "Scalar|Object|Array" ) );
+
+		Map<String,TypeDeclaration> base = readContext( builtins );
+		context.putAll( base );
 		return context;
 	}
 
-	public void validate( Object data ) throws ValidationException
+	private static Map<String,Object> builtin( String name, String def )
 	{
-		List<String> fails = new LinkedList<String>( );
-		validate( rootcontext, "", data, root, fails );
-		if ( !fails.isEmpty( ) )
+		Map<String,Object> map = new HashMap<String,Object>( );
+		map.put( "name", name );
+		map.put( "def", def );
+		return map;
+	}
+
+	public List<Object> validate( Object val )
+	{
+		Errors errors = new Errors( val );
+		validate( val, def, errors );
+		return errors.toList( );
+	}
+
+	public TypeDeclaration get( String name )
+	{
+		TypeDeclaration decl = context.get( name );
+		if ( decl != null )
 		{
-			throw new ValidationException( fails );
+			return decl;
+		}
+		else
+		{
+			throw new RuntimeException( "name not found: " + name );
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private void validate( Map<String,TypeDeclaration_> context, String path, Object data, Object type, List<String> fails )
+	public static Object readDef( Object def )
 	{
-		if ( type instanceof String )
+		if ( def == null )
 		{
-			ParameterisedName[] ptypes = ParameterisedName.parseTypes( (String)type );
-			List<String> culmfails = new LinkedList<String>( );
-			for ( ParameterisedName ptype : ptypes )
+			return Null.instance;
+		}
+		else if ( def instanceof Map )
+		{
+			@SuppressWarnings("unchecked")
+			Map<String,Object> map = (Map<String,Object>)def;
+			Map<String,Object> result = new HashMap<>( );
+			for ( Map.Entry<String,Object> entry : map.entrySet( ) )
 			{
-				String tname = ptype.getName( );
-				String[] params = ptype.getTypes( );
-				String[] ranges = ptype.getRanges( );
-				List<String> typefails = new LinkedList<String>( );
-
-				switch ( tname )
+				String key = entry.getKey( );
+				Object value = entry.getValue( );
+				if ( value instanceof String )
 				{
-					case "Any":
-						return;
-
-					case "String":
-						if ( data instanceof String )
-						{
-							if ( ranges.length == 1 )
-							{
-								String range = ranges[0];
-								String str = (String)data;
-								Pattern p = Pattern.compile( range );
-								Matcher m = p.matcher( str );
-								if ( !m.matches( ) )
-								{
-									typefails.add( path + " - regex failed: " + range );
-								}
-								else
-								{
-									return;
-								}
-							}
-							else
-							{
-								return;
-							}
-						}
-						else
-						{
-							typefails.add( path + " - String expected" );
-						}
-						break;
-
-					case "Integer":
-						if ( data instanceof Integer | data instanceof Long | data instanceof BigInteger )
-						{
-							if ( ranges.length == 1 )
-							{
-								String range = ranges[0];
-								if ( !checkIntegerRange( range, promoteInteger( data ) ) )
-								{
-									typefails.add( path + " - range failed: " + range );
-								}
-								else
-								{
-									return;
-								}
-							}
-							else
-							{
-								return;
-							}
-						}
-						else
-						{
-							typefails.add( path + " - Integral expected" );
-						}
-						break;
-
-					case "Decimal":
-						if ( data instanceof Float | data instanceof Double | data instanceof BigDecimal )
-						{
-							if ( ranges.length == 1 )
-							{
-								String range = ranges[0];
-								if ( !checkDecimalRange( range, promoteDecimal( data ) ) )
-								{
-									typefails.add( path + " - range failed: " + range );
-								}
-								else
-								{
-									return;
-								}
-							}
-							else
-							{
-								return;
-							}
-						}
-						else
-						{
-							typefails.add( path + " - Decimal expected" );
-						}
-						break;
-
-					case "Boolean":
-						if ( data instanceof Boolean )
-						{
-							return;
-						}
-						else
-						{
-							typefails.add( path + " - Boolean expected" );
-						}
-						break;
-
-					case "Map":
-						if ( data instanceof Map )
-						{
-							Map<String,Object> map = (Map<String,Object>)data;
-							String param = params[0];
-							boolean opt = param.endsWith( "?" );
-							String iparam = opt ? param.substring( 0, param.length( ) - 1 ) : param;
-							for ( Map.Entry<String,Object> entry : map.entrySet( ) )
-							{
-								String k = path + "." + entry.getKey( );
-								Object val = entry.getValue( );
-								if ( val != null )
-								{
-									validate( context, k, val, iparam, typefails );
-								}
-								else
-								{
-									if ( !opt )
-									{
-										fails.add( path + " - missing" );
-									}
-								}
-							}
-							if ( ranges.length == 1 )
-							{
-								String range = ranges[0];
-								if ( !checkIntegerRange( range, promoteInteger( map.size( ) ) ) )
-								{
-									typefails.add( path + " - map size: " + map.size( ) + " range failed: " + range );
-								}
-							}
-						}
-						else
-						{
-							typefails.add( path + " - Map expected" );
-						}
-						break;
-
-					case "Scalar":
-						if ( data instanceof String || data instanceof Long || data instanceof Double || data instanceof Boolean )
-						{
-							return;
-						}
-						else
-						{
-							typefails.add( path + " - Scalar expected" );
-						}
-						break;
-
-					case "Discriminator":
-						if ( data instanceof String )
-						{
-							return;
-						}
-						else
-						{
-							typefails.add( path + " - String expected" );
-						}
-						break;
-
-					case "List":
-						if ( data instanceof List )
-						{
-							List<Object> list = (List<Object>)data;
-							String param = params[0];
-							int i = 0;
-							boolean opt = param.endsWith( "?" );
-							String iparam = opt ? param.substring( 0, param.length( ) - 1 ) : param;
-							for ( Object item : list )
-							{
-								String k = String.format( path + "[%d]", i );
-								if ( item != null )
-								{
-									validate( context, k, item, iparam, typefails );
-								}
-								else
-								{
-									if ( !opt )
-									{
-										fails.add( path + " - missing" );
-									}
-								}
-								i++;
-							}
-							if ( ranges.length == 1 )
-							{
-								String range = ranges[0];
-								if ( !checkIntegerRange( range, promoteInteger( list.size( ) ) ) )
-								{
-									typefails.add( path + " - list size: " + list.size( ) + " range failed: " + range );
-								}
-							}
-						}
-						else
-						{
-							typefails.add( path + " - List expected" );
-						}
-						break;
-
-					default:
-						TypeDeclaration_ td = context.get( tname );
-						if ( td != null )
-						{
-							td = td.applyParameters( params, ranges );
-							if ( td.isAlias( ) )
-							{
-								validate( context, path, data, td.getAlias( ), typefails );
-							}
-							else
-							{
-								if ( data instanceof Map )
-								{
-									Map<String,Object> map = (Map<String,Object>)data;
-									String discrim = null;
-									for ( Map.Entry<String,Object> entry : td.getDef( ).entrySet( ) )
-									{
-										if ( "Discriminator".equals( entry.getValue( ) ) )
-										{
-											discrim = entry.getKey( );
-											break;
-										}
-									}
-
-									if ( discrim != null )
-									{
-										String polyname = (String)map.get( discrim );
-										TypeDeclaration_ polytd = context.get( polyname );
-										if ( polytd != null )
-										{
-											if ( isSubtype( context, polytd, tname ) )
-											{
-												if ( !polytd.isAbstract( ) )
-												{
-													polytd = polytd.applyParameters( params, ranges );
-													validateObject( context, path, map, inheritDefinitions( context, polytd ), typefails );
-												}
-												else
-												{
-													typefails.add( path + " - can't instantiate abstract type: " + polyname );
-												}
-											}
-											else
-											{
-												typefails.add( path + " - Discriminated type " + polyname + " does not extend base type " + tname );
-											}
-										}
-										else
-										{
-											typefails.add( path + " - Discriminated type not found: " + polyname );
-										}
-									}
-									else
-									{
-										if ( !td.isAbstract( ) )
-										{
-											validateObject( context, path, map, inheritDefinitions( context, td ), typefails );
-										}
-										else
-										{
-											typefails.add( path + " - can't instantiate abstract type: " + tname );
-										}
-									}
-								}
-								else
-								{
-									typefails.add( path + " - Map expected" );
-								}
-							}
-						}
-						else
-						{
-							typefails.add( "SCHEMA! no typedef: " + tname );
-						}
+					result.put( key, FieldValueExpression.read( (String)value ) );
 				}
-
-				if ( typefails.isEmpty( ) )
+				else if ( value instanceof Map || value instanceof List )
 				{
-					return;
+					result.put( key, readDef( value ) );
 				}
 				else
 				{
-					for ( String tfail : typefails )
-					{
-						culmfails.add( tfail );
-					}
+					result.put( key, new FieldValueExpression( true, readScalar( value ) ) );
 				}
 			}
-
-			fails.addAll( culmfails );
+			return result;
+		}
+		else if ( def instanceof List )
+		{
+			@SuppressWarnings("unchecked")
+			List<Object> list = (List<Object>)def;
+			List<Object> result = new LinkedList<>( );
+			for ( Object item : list )
+			{
+				result.add( readDef( item ) );
+			}
+			return result;
+		}
+		else if ( def instanceof String )
+		{
+			String str = (String)def;
+			return TypeExpression.parse( str );
 		}
 		else
 		{
-			if ( data instanceof Map )
-			{
-				Map<String,Object> map = (Map<String,Object>)data;
-				Map<String,Object> def = (Map<String,Object>)type;
-				validateObject( context, path, map, def, fails );
-			}
-			else
-			{
-				fails.add( path + " - Map expected" );
-			}
+			return readScalar( def );
 		}
 	}
 
-	private Map<String,Object> inheritDefinitions( Map<String,TypeDeclaration_> context, TypeDeclaration_ typ )
+	private static TypeExpression readScalar( Object def )
 	{
-		Map<String,Object> def = new HashMap<String,Object>( );
-		String ext = typ.getExtends( );
-		if ( ext != null )
+		if ( def instanceof Integer )
 		{
-			TypeDeclaration_ supertyp = context.get( ext );
-			Map<String,Object> superdef = inheritDefinitions( context, supertyp );
-			def.putAll( superdef );
+			Integer val = (Integer)def;
+			return new IntegerValue( BigInteger.valueOf( val ) );
 		}
-		def.putAll( typ.getDef( ) );
-		return def;
-	}
-
-	private boolean isSubtype( Map<String,TypeDeclaration_> context, TypeDeclaration_ typ, String base )
-	{
-		String ext = typ.getExtends( );
-		if ( ext != null )
+		else if ( def instanceof Long )
 		{
-			if ( ext.equals( base ) )
-			{
-				return true;
-			}
-			else
-			{
-				TypeDeclaration_ supertyp = context.get( ext );
-				return isSubtype( context, supertyp, base );
-			}
+			Long val = (Long)def;
+			return new IntegerValue( BigInteger.valueOf( val ) );
 		}
-		return false;
-	}
-
-	private BigInteger promoteInteger( Object d )
-	{
-		if ( d instanceof Integer )
+		else if ( def instanceof BigInteger )
 		{
-			return BigInteger.valueOf( (Integer)d );
+			BigInteger val = (BigInteger)def;
+			return new IntegerValue( val );
 		}
-		else if ( d instanceof Long )
+		else if ( def instanceof Float )
 		{
-			return BigInteger.valueOf( (Long)d );
+			Float val = (Float)def;
+			return new DecimalValue( BigDecimal.valueOf( val ) );
+		}
+		else if ( def instanceof Double )
+		{
+			Double val = (Double)def;
+			return new DecimalValue( BigDecimal.valueOf( val ) );
+		}
+		else if ( def instanceof BigDecimal )
+		{
+			BigDecimal val = (BigDecimal)def;
+			return new DecimalValue( val );
+		}
+		else if ( def instanceof Boolean )
+		{
+			Boolean val = (Boolean)def;
+			return new BooleanValue( val );
 		}
 		else
 		{
-			return (BigInteger)d;
+			throw new RuntimeException( "bad def" );
 		}
 	}
 
-	private boolean checkIntegerRange( String range, BigInteger d )
+	private static Map<String,TypeDeclaration> readContext( Object context )
 	{
-		String[] ranges = range.split( "," );
-		for ( String r : ranges )
+		Map<String,TypeDeclaration> result = new HashMap<>( );
+		@SuppressWarnings("unchecked")
+		List<Object> list = (List<Object>)context;
+		for ( Object item : list )
 		{
-			if ( r.contains( ".." ) )
+			TypeDeclaration decl = TypeDeclaration.read( item );
+			result.put( decl.getName( ), decl );
+		}
+		return result;
+	}
+
+	public void validate( Object val, Object def, Errors errors )
+	{
+		if ( def instanceof Map )
+		{
+			if ( val instanceof Map )
 			{
-				int dots = r.indexOf( ".." );
-				boolean passed = true;
-				if ( dots > 0 )
+				@SuppressWarnings("unchecked")
+				Map<String,Object> map = (Map<String,Object>)def;
+				@SuppressWarnings("unchecked")
+				Map<String,Object> vmap = (Map<String,Object>)val;
+
+				for ( Map.Entry<String,Object> entry : map.entrySet( ) )
 				{
-					BigInteger low = new BigInteger( r.substring( 0, dots ) );
-					if ( d.compareTo( low ) < 0 )
+					String key = entry.getKey( );
+					Object fv = entry.getValue( );
+
+					if ( fv instanceof FieldValueExpression )
 					{
-						passed = false;
+						FieldValueExpression fvexpr = (FieldValueExpression)fv;
+						if ( vmap.containsKey( key ) )
+						{
+							Object vval = vmap.get( key );
+							fvexpr.getExpression( ).validate( vval, this, errors.field( key, vval ) );
+						}
+						else
+						{
+							if ( fvexpr.isRequired( ) )
+							{
+								errors.add( "missing field: " + key );
+							}
+						}
+					}
+					else
+					{
+						Object vval = vmap.get( key );
+						validate( vval, fv, errors );
 					}
 				}
-				if ( dots < r.length( ) - 2 )
+
+				for ( String key : vmap.keySet( ) )
 				{
-					BigInteger high = new BigInteger( r.substring( dots + 2, r.length( ) ) );
-					if ( d.compareTo( high ) > 0 )
+					if ( !map.containsKey( key ) )
 					{
-						passed = false;
+						errors.add( "extra field: " + key );
 					}
-				}
-				if ( passed )
-				{
-					return true;
 				}
 			}
 			else
 			{
-				BigInteger x = new BigInteger( r );
-				if ( x.equals( d ) )
-				{
-					return true;
-				}
+				errors.add( "object expected" );
 			}
 		}
-		return false;
-	}
-
-	private BigDecimal promoteDecimal( Object d )
-	{
-		if ( d instanceof Float )
+		else if ( def instanceof List )
 		{
-			return BigDecimal.valueOf( (Float)d );
+			if ( val instanceof List )
+			{
+				@SuppressWarnings("unchecked")
+				List<Object> list = (List<Object>)def;
+				@SuppressWarnings("unchecked")
+				List<Object> vlist = (List<Object>)val;
+				if ( list.size( ) == vlist.size( ) )
+				{
+					for ( int i = 0; i < list.size( ); i++ )
+					{
+						Object v = vlist.get( i );
+						validate( v, list.get( i ), errors.item( i, v ) );
+					}
+				}
+				else
+				{
+					errors.add( "unmatched array size" );
+				}
+			}
+			else
+			{
+				errors.add( "array expected" );
+			}
 		}
-		else if ( d instanceof Double )
+		else if ( def instanceof TypeExpression )
 		{
-			return BigDecimal.valueOf( (Double)d );
+			TypeExpression expr = (TypeExpression)def;
+			expr.validate( val, this, errors );
 		}
 		else
 		{
-			return (BigDecimal)d;
+			throw new RuntimeException( "bad def" );
 		}
 	}
-	
-	private boolean checkDecimalRange( String range, BigDecimal d )
+
+	public static void main( String[] args ) throws FileNotFoundException
 	{
-		String[] ranges = range.split( "," );
-		for ( String r : ranges )
+		Yaml yaml = new Yaml( );
+		Object schema = yaml.load( new FileReader( new File( "/home/rob/structuredschema/schema.yaml" ) ) );
+		// Object schema = schema( );
+
+		StructuredSchema sch = StructuredSchema.read( schema );
+		// Object doc = test( );
+		Object doc = yaml.load( new FileReader( new File( "/home/rob/structuredschema/mv.yaml" ) ) );
+
+		for ( Object err : sch.validate( doc ) )
 		{
-			if ( r.contains( ".." ) )
-			{
-				int dots = r.indexOf( ".." );
-				boolean passed = true;
-				if ( dots > 0 )
-				{
-					BigDecimal low = new BigDecimal( r.substring( 0, dots ) );
-					if ( d.compareTo( low ) < 0 )
-					{
-						passed = false;
-					}
-				}
-				if ( dots < r.length( ) - 2 )
-				{
-					BigDecimal high = new BigDecimal( r.substring( dots + 2, r.length( ) ) );
-					if ( d.compareTo( high ) > 0 )
-					{
-						passed = false;
-					}
-				}
-				if ( passed )
-				{
-					return true;
-				}
-			}
-			else
-			{
-				BigDecimal x = new BigDecimal( r );
-				if ( x.equals( d ) )
-				{
-					return true;
-				}
-			}
+			System.out.println( err );
 		}
-		return false;
 	}
 
-	private void validateObject( Map<String,TypeDeclaration_> context, String path, Map<String,Object> data, Map<String,Object> schema, List<String> fails )
+	private static List<Object> test( )
 	{
-		for ( Map.Entry<String,Object> sent : schema.entrySet( ) )
-		{
-			String key = sent.getKey( );
-			String typ = (String)sent.getValue( );
-			boolean opt = typ.endsWith( "?" );
-			typ = opt ? typ.substring( 0, typ.length( ) - 1 ) : typ;
-			Object child = data.get( key );
-			String pathkey = path + "." + key;
-			if ( child != null )
-			{
-				validate( context, pathkey, child, typ, fails );
-			}
-			else
-			{
-				if ( !opt )
-				{
-					fails.add( pathkey + " - missing" );
-				}
-			}
-		}
-
-		for ( String key : data.keySet( ) )
-		{
-			if ( !schema.containsKey( key ) )
-			{
-				String pathkey = path + "." + key;
-				fails.add( pathkey + " - unexpected" );
-			}
-		}
+		List<Object> list = new LinkedList<Object>( );
+		list.add( BigDecimal.valueOf( 5 ) );
+		list.add( 5L );
+		return list;
 	}
 
-	private Object buildSchemaSchema( )
+	private static Map<String,Object> schema( )
 	{
 		Map<String,Object> schema = new HashMap<String,Object>( );
-		Map<String,Object> def = new HashMap<String,Object>( );
-		def.put( "def", "Tree[String]" );
-		def.put( "context", "List[Type]" );
+		schema.put( "def", "Test(String)" );
 		List<Object> context = new LinkedList<Object>( );
-		Map<String,Object> type = new HashMap<String,Object>( );
-		type.put( "name", "Type" );
-		Map<String,Object> typedef = new HashMap<String,Object>( );
-		typedef.put( "name", "String" );
-		typedef.put( "abstract", "Boolean?" );
-		typedef.put( "extends", "String?" );
-		typedef.put( "def", "Tree[String]?" );
-		type.put( "def", typedef );
-		Map<String,Object> tree = new HashMap<String,Object>( );
-		tree.put( "name", "Tree[T]" );
-		tree.put( "def", "T|Map[Tree[T]]" );
-		context.add( type );
-		context.add( tree );
-		schema.put( "def", def );
+		Map<String,Object> decl = new HashMap<String,Object>( );
+		decl.put( "name", "Test(T,U)" );
+		decl.put( "def", "Array(5.0,2)" );
+		context.add( decl );
 		schema.put( "context", context );
 		return schema;
 	}
+
 }

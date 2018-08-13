@@ -192,7 +192,7 @@ public abstract class TypeExpression
 		}
 		else
 		{
-			return new NamedType( expr, tparams );
+			return new TypeInvocation( expr, tparams );
 		}
 	}
 }

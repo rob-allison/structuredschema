@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class NamedType extends TypeExpression
+public class TypeInvocation extends TypeExpression
 {
 	private final String name;
 	private final List<TypeExpression> parameters;
 
-	public NamedType( String name, List<TypeExpression> parameters )
+	public TypeInvocation( String name, List<TypeExpression> parameters )
 	{
 		this.name = name;
 		this.parameters = parameters;
@@ -46,7 +46,7 @@ public class NamedType extends TypeExpression
 		}
 		else
 		{
-			return new NamedType( name, parameters.stream( ).map( e -> e.replace( nm, expression ) ).collect( Collectors.toList( ) ) );
+			return new TypeInvocation( name, parameters.stream( ).map( e -> e.replace( nm, expression ) ).collect( Collectors.toList( ) ) );
 		}
 	}
 
@@ -75,7 +75,18 @@ public class NamedType extends TypeExpression
 	{
 		if ( name.equals( "Object" ) )
 		{
-			if ( !(val != null && val instanceof Map) )
+			if ( val != null && val instanceof Map )
+			{
+				Map<String,Object> map = new HashMap<>( );
+				TypeExpression vdef = getParameter( 0 );
+				for ( Map.Entry<String,Object> entry : map.entrySet( ) )
+				{
+					String k = entry.getKey( );
+					Object v = entry.getValue( );
+					schema.validate( v, vdef, errors.field( k, v ) );
+				}
+			}
+			else
 			{
 				errors.add( "object expected" );
 			}

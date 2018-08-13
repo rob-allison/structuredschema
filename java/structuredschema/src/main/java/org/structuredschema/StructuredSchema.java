@@ -19,8 +19,21 @@ public class StructuredSchema
 
 	public static StructuredSchema read( Object schema )
 	{
+		return read( schema, true );
+	}
+	
+	private static StructuredSchema read( Object schema, boolean validate )
+	{
 		if ( schema instanceof Map )
 		{
+			if ( validate )
+			{
+				Object schsch = buildSchemaSchema( );
+				StructuredSchema sch = StructuredSchema.read( schsch, false );
+				sch.validate( schsch );
+				sch.validate( schema );
+			}
+			
 			@SuppressWarnings("unchecked")
 			Map<String,Object> map = (Map<String,Object>)schema;
 			Object def = map.get( "def" );
@@ -292,6 +305,31 @@ public class StructuredSchema
 			throw new RuntimeException( "bad def" );
 		}
 	}
+	
+	private static Object buildSchemaSchema( )
+	{
+		Map<String,Object> schema = new HashMap<String,Object>( );
+		Map<String,Object> def = new HashMap<String,Object>( );
+		def.put( "def", "Tree(String)" );
+		def.put( "context", "Array(Type)" );
+		List<Object> context = new LinkedList<Object>( );
+		Map<String,Object> type = new HashMap<String,Object>( );
+		type.put( "name", "Type" );
+		Map<String,Object> typedef = new HashMap<String,Object>( );
+		typedef.put( "name", "String" );
+		typedef.put( "abstract", "Boolean?" );
+		typedef.put( "extends", "String?" );
+		typedef.put( "def", "Tree(String)?" );
+		type.put( "def", typedef );
+		Map<String,Object> tree = new HashMap<String,Object>( );
+		tree.put( "name", "Tree(T)" );
+		tree.put( "def", "T|Object(Tree(T))" );
+		context.add( type );
+		context.add( tree );
+		schema.put( "def", def );
+		schema.put( "context", context );
+		return schema;
+	}
 
 	public static void main( String[] args ) throws FileNotFoundException
 	{
@@ -308,26 +346,4 @@ public class StructuredSchema
 			System.out.println( err );
 		}
 	}
-
-	private static List<Object> test( )
-	{
-		List<Object> list = new LinkedList<Object>( );
-		list.add( BigDecimal.valueOf( 5 ) );
-		list.add( 5L );
-		return list;
-	}
-
-	private static Map<String,Object> schema( )
-	{
-		Map<String,Object> schema = new HashMap<String,Object>( );
-		schema.put( "def", "Test(String)" );
-		List<Object> context = new LinkedList<Object>( );
-		Map<String,Object> decl = new HashMap<String,Object>( );
-		decl.put( "name", "Test(T,U)" );
-		decl.put( "def", "Array(5.0,2)" );
-		context.add( decl );
-		schema.put( "context", context );
-		return schema;
-	}
-
 }

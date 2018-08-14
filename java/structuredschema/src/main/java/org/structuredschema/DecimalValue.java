@@ -61,4 +61,10 @@ public class DecimalValue extends TypeLiteral
 	{
 		return new DecimalValue( new BigDecimal( str ) );
 	}
+	
+	@Override
+	public Object toDefinition( )
+	{
+		return value;
+	}
 }

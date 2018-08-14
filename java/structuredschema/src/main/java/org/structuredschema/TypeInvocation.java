@@ -83,12 +83,12 @@ public class TypeInvocation extends TypeExpression
 				{
 					String k = entry.getKey( );
 					Object v = entry.getValue( );
-					schema.validate( v, vdef, errors.field( k, v ) );
+					schema.validate( v, vdef, errors.field( k ) );
 				}
 			}
 			else
 			{
-				errors.add( "object expected" );
+				errors.add( "object expected", val, toString( ) );
 			}
 		}
 		else if ( name.equals( "Array" ) )
@@ -101,14 +101,14 @@ public class TypeInvocation extends TypeExpression
 				for ( int i = 0; i < vlist.size( ); i++ )
 				{
 					Object item = vlist.get( i );
-					schema.validate( item, idef, errors.item( i, item ) );
+					schema.validate( item, idef, errors.item( i ) );
 				}
 				TypeExpression ndef = getParameter( 1 );
-				schema.validate( vlist.size( ), ndef, errors.field( "!size", vlist.size( ) ) );
+				schema.validate( vlist.size( ), ndef, errors.field( "!size" ) );
 			}
 			else
 			{
-				errors.add( "array expected" );
+				errors.add( "array expected", val, toString( ) );
 			}
 		}
 		else
@@ -187,7 +187,7 @@ public class TypeInvocation extends TypeExpression
 				}
 				else
 				{
-					errors.add( "object expected" );
+					errors.add( "object expected", val, toString( ) );
 				}
 			}
 		}

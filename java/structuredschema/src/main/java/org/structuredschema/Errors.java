@@ -10,19 +10,17 @@ public class Errors
 	private final Errors parent;
 	private final List<Object> list;
 	private final Object step;
-	private final Object value;
 
-	public Errors( Object value )
+	public Errors( )
 	{
-		this( null, new LinkedList<>( ), null, value );
+		this( null, new LinkedList<>( ), null );
 	}
 
-	public Errors( Errors parent, List<Object> list, Object step, Object value )
+	public Errors( Errors parent, List<Object> list, Object step )
 	{
 		this.parent = parent;
 		this.list = list;
 		this.step = step;
-		this.value = value;
 	}
 
 	public List<Object> toList( )
@@ -35,19 +33,19 @@ public class Errors
 		return list.isEmpty( );
 	}
 
-	public Errors field( String name, Object val )
+	public Errors field( String name )
 	{
-		return new Errors( this, list, name, val );
+		return new Errors( this, list, name );
 	}
 
-	public Errors item( int index, Object val )
+	public Errors item( int index )
 	{
-		return new Errors( this, list, index, val );
+		return new Errors( this, list, index );
 	}
 	
 	public Errors detach( )
 	{
-		return new Errors( parent, new LinkedList<>( ), step, value );
+		return new Errors( parent, new LinkedList<>( ), step );
 	}
 	
 	public void repend( Errors errors )
@@ -55,11 +53,12 @@ public class Errors
 		list.addAll( errors.list );
 	}
 
-	public void add( String msg )
+	public void add( String msg, Object value, Object type )
 	{
 		Map<String,Object> err = new HashMap<>( );
 		err.put( "path", path( ) );
 		err.put( "value", value );
+		err.put( "type", type );
 		err.put( "msg", msg );
 		list.add( err );
 	}

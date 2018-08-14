@@ -23,4 +23,10 @@ public class Null extends TypeLiteral
 	{
 		writer.write( "null" );
 	}
+
+	@Override
+	public Object toDefinition( )
+	{
+		return null;
+	}
 }

@@ -61,4 +61,10 @@ public class IntegerValue extends TypeLiteral
 	{
 		return new IntegerValue( new BigInteger( str ) );
 	}
+	
+	@Override
+	public Object toDefinition( )
+	{
+		return value;
+	}
 }

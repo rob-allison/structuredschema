@@ -39,4 +39,13 @@ public class FieldValueExpression
 		return new FieldValueExpression( required, expression.replace( pname, pexpr ) );
 	}
 
+	public String toDefinition( )
+	{
+		String str = expression.toString( );
+		if ( !required )
+		{
+			str += "?";
+		}
+		return str;
+	}
 }

@@ -1,16 +1,9 @@
 package org.structuredschema;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import org.yaml.snakeyaml.Yaml;
 
 public class StructuredSchema
 {
@@ -91,7 +84,7 @@ public class StructuredSchema
 
 	public List<Object> validate( Object val )
 	{
-		Errors errors = new Errors( val );
+		Errors errors = new Errors( );
 		validate( val, def, errors );
 		return errors.toList( );
 	}
@@ -134,7 +127,7 @@ public class StructuredSchema
 				}
 				else
 				{
-					result.put( key, new FieldValueExpression( true, readScalar( value ) ) );
+					result.put( key, new FieldValueExpression( true, TypeExpression.read( def ) ) );
 				}
 			}
 			return result;
@@ -150,57 +143,9 @@ public class StructuredSchema
 			}
 			return result;
 		}
-		else if ( def instanceof String )
-		{
-			String str = (String)def;
-			return TypeExpression.parse( str );
-		}
 		else
 		{
-			return readScalar( def );
-		}
-	}
-
-	private static TypeExpression readScalar( Object def )
-	{
-		if ( def instanceof Integer )
-		{
-			Integer val = (Integer)def;
-			return new IntegerValue( BigInteger.valueOf( val ) );
-		}
-		else if ( def instanceof Long )
-		{
-			Long val = (Long)def;
-			return new IntegerValue( BigInteger.valueOf( val ) );
-		}
-		else if ( def instanceof BigInteger )
-		{
-			BigInteger val = (BigInteger)def;
-			return new IntegerValue( val );
-		}
-		else if ( def instanceof Float )
-		{
-			Float val = (Float)def;
-			return new DecimalValue( BigDecimal.valueOf( val ) );
-		}
-		else if ( def instanceof Double )
-		{
-			Double val = (Double)def;
-			return new DecimalValue( BigDecimal.valueOf( val ) );
-		}
-		else if ( def instanceof BigDecimal )
-		{
-			BigDecimal val = (BigDecimal)def;
-			return new DecimalValue( val );
-		}
-		else if ( def instanceof Boolean )
-		{
-			Boolean val = (Boolean)def;
-			return new BooleanValue( val );
-		}
-		else
-		{
-			throw new RuntimeException( "bad def" );
+			return TypeExpression.read( def );
 		}
 	}
 
@@ -239,13 +184,13 @@ public class StructuredSchema
 						if ( vmap.containsKey( key ) )
 						{
 							Object vval = vmap.get( key );
-							fvexpr.getExpression( ).validate( vval, this, errors.field( key, vval ) );
+							fvexpr.getExpression( ).validate( vval, this, errors.field( key ) );
 						}
 						else
 						{
 							if ( fvexpr.isRequired( ) )
 							{
-								errors.add( "missing field: " + key );
+								errors.add( "missing field " + key, val, writeDef( def ) );
 							}
 						}
 					}
@@ -260,13 +205,13 @@ public class StructuredSchema
 				{
 					if ( !map.containsKey( key ) )
 					{
-						errors.add( "extra field: " + key );
+						errors.add( "extra field " + key, val, writeDef( def ) );
 					}
 				}
 			}
 			else
 			{
-				errors.add( "object expected" );
+				errors.add( "object expected", val, writeDef( def ) );
 			}
 		}
 		else if ( def instanceof List )
@@ -282,17 +227,21 @@ public class StructuredSchema
 					for ( int i = 0; i < list.size( ); i++ )
 					{
 						Object v = vlist.get( i );
-						validate( v, list.get( i ), errors.item( i, v ) );
+						validate( v, list.get( i ), errors.item( i ) );
 					}
+				}
+				else if ( list.size( ) > vlist.size( ) )
+				{
+					errors.add( "array oversize", val, writeDef( def ) );
 				}
 				else
 				{
-					errors.add( "unmatched array size" );
+					errors.add( "array undersize", val, writeDef( def ) );
 				}
 			}
 			else
 			{
-				errors.add( "array expected" );
+				errors.add( "array expected", val, writeDef( def ) );
 			}
 		}
 		else if ( def instanceof TypeExpression )
@@ -330,20 +279,44 @@ public class StructuredSchema
 		schema.put( "context", context );
 		return schema;
 	}
-
-	public static void main( String[] args ) throws FileNotFoundException
+	
+	public static Object writeDef( Object def )
 	{
-		Yaml yaml = new Yaml( );
-		Object schema = yaml.load( new FileReader( new File( "/home/rob/structuredschema/schema.yaml" ) ) );
-		// Object schema = schema( );
-
-		StructuredSchema sch = StructuredSchema.read( schema );
-		// Object doc = test( );
-		Object doc = yaml.load( new FileReader( new File( "/home/rob/structuredschema/mv.yaml" ) ) );
-
-		for ( Object err : sch.validate( doc ) )
+		if ( def instanceof Map )
 		{
-			System.out.println( err );
+			@SuppressWarnings("unchecked")
+			Map<String,Object> map = (Map<String,Object>)def;
+			Map<String,Object> result = new HashMap<>( );
+			for ( String key : map.keySet( ) )
+			{
+				result.put( key, writeDef( map.get( key ) ) );
+			}
+			return result;
+		}
+		else if ( def instanceof List )
+		{
+			@SuppressWarnings("unchecked")
+			List<Object> list = (List<Object>)def;
+			List<Object> result = new LinkedList<>( );
+			for ( Object item : list )
+			{
+				result.add( readDef( item ) );
+			}
+			return result;
+		}
+		else if ( def instanceof TypeExpression )
+		{
+			TypeExpression expr = (TypeExpression)def;
+			return expr.toDefinition( );
+		}
+		else if ( def instanceof FieldValueExpression )
+		{
+			FieldValueExpression fvexpr = (FieldValueExpression)def;
+			return fvexpr.toDefinition( );
+		}
+		else
+		{
+			throw new RuntimeException( "bad def" );
 		}
 	}
 }

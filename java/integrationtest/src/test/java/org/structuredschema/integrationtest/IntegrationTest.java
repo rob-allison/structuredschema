@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,9 +24,7 @@ public class IntegrationTest
 	private static final Yaml yaml = new Yaml( );
 	private static final File dir = new File( System.getProperty( "dir" ) );
 
-	@SuppressWarnings("unused")
 	private final String sname;
-	@SuppressWarnings("unused")
 	private final String name;
 	private final Object schema;
 	private final Object test;
@@ -39,10 +40,20 @@ public class IntegrationTest
 	}
 
 	@Test
-	public void test( )
+	public void test( ) throws IOException
 	{
 		StructuredSchema sch = StructuredSchema.read( schema );
 		Object errors = sch.validate( test );
+
+		if ( !result.equals( errors ) )
+		{
+			System.out.println( sname + "." + name );
+			Writer writer = new OutputStreamWriter( System.out );
+			yaml.dump( result, writer );
+			yaml.dump( errors, writer );
+			writer.flush( );
+		}
+		
 		Assert.assertEquals( result, errors );
 	}
 
@@ -74,8 +85,6 @@ public class IntegrationTest
 				params.add( new Object[] { sname, name, schema, test, result } );
 			}
 		}
-
-		System.out.println( params );
 
 		return params;
 	}

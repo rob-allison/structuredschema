@@ -5,9 +5,9 @@ import java.io.Writer;
 
 public class BooleanValue extends TypeLiteral
 {
-	private final Boolean value;
+	private final boolean value;
 
-	public BooleanValue( Boolean value )
+	public BooleanValue( boolean value )
 	{
 		this.value = value;
 	}
@@ -18,7 +18,7 @@ public class BooleanValue extends TypeLiteral
 		if ( obj != null && obj instanceof Boolean )
 		{
 			boolean b = (Boolean)obj;
-			return value != null ? b == value : true;
+			return b == value;
 		}
 		return false;
 	}
@@ -48,5 +48,11 @@ public class BooleanValue extends TypeLiteral
 	public void compose( Writer writer ) throws IOException
 	{
 		writer.write( value ? "true" : "false" );
+	}
+
+	@Override
+	public Object toDefinition( )
+	{
+		return value;
 	}
 }

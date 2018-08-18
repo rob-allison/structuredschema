@@ -7,10 +7,27 @@ import java.math.BigDecimal;
 public class DecimalValue extends TypeLiteral
 {
 	private final BigDecimal value;
+	private final Object definition;
 
 	public DecimalValue( BigDecimal value )
 	{
+		this( value, value );
+	}
+
+	public DecimalValue( Double value )
+	{
+		this( BigDecimal.valueOf( value ), value );
+	}
+	
+	public DecimalValue( Float value )
+	{
+		this( BigDecimal.valueOf( value ), value );
+	}
+	
+	public DecimalValue( BigDecimal value, Object definition )
+	{
 		this.value = value;
+		this.definition = definition;
 	}
 
 	@Override
@@ -35,12 +52,12 @@ public class DecimalValue extends TypeLiteral
 			if ( obj instanceof Double )
 			{
 				Double val = (Double)obj;
-				return BigDecimal.valueOf( val );
+				return new BigDecimal( val.toString( ) );
 			}
 			if ( obj instanceof Float )
 			{
 				Float val = (Float)obj;
-				return BigDecimal.valueOf( val );
+				return new BigDecimal( val.toString( ) );
 			}
 		}
 		return null;
@@ -59,12 +76,12 @@ public class DecimalValue extends TypeLiteral
 
 	public static DecimalValue parseValue( String str )
 	{
-		return new DecimalValue( new BigDecimal( str ) );
+		return new DecimalValue( new BigDecimal( str ), str );
 	}
-	
+
 	@Override
 	public Object toDefinition( )
 	{
-		return value;
+		return definition;
 	}
 }

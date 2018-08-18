@@ -48,12 +48,12 @@ public abstract class TypeExpression
 		else if ( def instanceof Integer )
 		{
 			Integer val = (Integer)def;
-			return new IntegerValue( BigInteger.valueOf( val ) );
+			return new IntegerValue( val );
 		}
 		else if ( def instanceof Long )
 		{
 			Long val = (Long)def;
-			return new IntegerValue( BigInteger.valueOf( val ) );
+			return new IntegerValue( val );
 		}
 		else if ( def instanceof BigInteger )
 		{
@@ -63,12 +63,12 @@ public abstract class TypeExpression
 		else if ( def instanceof Float )
 		{
 			Float val = (Float)def;
-			return new DecimalValue( BigDecimal.valueOf( val ) );
+			return new DecimalValue( val );
 		}
 		else if ( def instanceof Double )
 		{
 			Double val = (Double)def;
-			return new DecimalValue( BigDecimal.valueOf( val ) );
+			return new DecimalValue( val );
 		}
 		else if ( def instanceof BigDecimal )
 		{

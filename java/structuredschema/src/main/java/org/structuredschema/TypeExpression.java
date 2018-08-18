@@ -201,6 +201,23 @@ public abstract class TypeExpression
 						builder.append( (char)c );
 					}
 					break;
+				case '_':
+					if ( builder.toString( ).isEmpty( ) )
+					{
+						String st = StringValue.tokenizeString( reader );
+						if ( !result.isEmpty( ) && result.get( result.size( ) - 1 ).startsWith( "_" ) )
+						{
+							String last = result.remove( result.size( ) - 1 );
+							last = last.substring( 1, last.length( ) - 1 );
+							st = last + "_" + st;
+						}
+						result.add( "_" + st + "_" );
+					}
+					else
+					{
+						builder.append( (char)c );
+					}
+					break;
 				default:
 					builder.append( (char)c );
 			}
@@ -232,6 +249,10 @@ public abstract class TypeExpression
 		else if ( expr.matches( Regex.regex( ) ) )
 		{
 			return Regex.parseRegex( expr );
+		}
+		else if ( expr.matches( StringValue.regex( ) ) )
+		{
+			return StringValue.parseString( expr );
 		}
 		else if ( expr.matches( Null.regex( ) ) )
 		{

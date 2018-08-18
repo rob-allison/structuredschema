@@ -64,13 +64,4 @@ public class Regex extends TypeLiteral
 		writer.write( regex.replace( "/", "//" ) );
 		writer.write( '/' );
 	}
-
-	@Override
-	public Object toDefinition( )
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
 }

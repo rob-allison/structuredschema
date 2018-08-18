@@ -49,7 +49,9 @@ public class IntegrationTest
 		{
 			System.out.println( sname + "." + name );
 			Writer writer = new OutputStreamWriter( System.out );
+			writer.write( "expected:\n" );
 			yaml.dump( result, writer );
+			writer.write( "actual:\n" );
 			yaml.dump( errors, writer );
 			writer.flush( );
 		}

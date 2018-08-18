@@ -1,10 +1,10 @@
 # This document serves as a schema for mv.yaml, instructions on how to interpret it are provided at the bottom.
 
 def:
-  feeds: Array(Feed)                     # list of feeds
-  vizers: Array(Vizer)                   # list of vizers
-  connect: Array(Connect)                # list of connections between feeds and vizers
-  home: Directory?                      # optionally define the directory structure when browsing MetriVision
+  feeds: Array(Feed)                    # list of feeds
+  vizers: Array(Vizer)                  # list of vizers
+  connect: Array(Connect)               # list of connections between feeds and vizers
+  home: Directory(String)?              # optionally define the directory structure when browsing MetriVision
   admin-link: Boolean?                  # display admin link (cog), defaults to true
 
 context:
@@ -218,7 +218,7 @@ context:
     extends: Colorizer
     def:
       key: String                       # json path into event data structure to find the string value
-      colors: Array[Keyed[HexColor]]     # list of colors keyed by string value
+      colors: Map(String,HexColor)      # list of colors keyed by string value
 
   - name: ScalarColorizer               # map a scalar interval to a color range
     extends: Colorizer
@@ -260,7 +260,7 @@ context:
     extends: Colorizer
     def:
       key: String                       # json path into event data structure to find the string value
-      colorizers: Array(Keyed(Colorizer)) # list of colorizers keyed by string value
+      colorizers: Map(String,Colorizer) # list of colorizers keyed by string value
 
   - name: ColorRange                    # base color range definition common to all color ranges
     def:
@@ -284,21 +284,11 @@ context:
       feed: String                      # name of the feed
       vizers: Array(String)              # list of names of the vizers fed from this feed
 
-  - name: Directory                     # directory definition
-    def:
-      name: String                      # name of the directory
-      contents: Array(Directory|String)  # contents of directory as filenames or child directories
-
   - name: TimeInterval
     def: /^\d+[ywdhms]$/                # defines a time interval as an integer suffixed with one of ywdhms for years, weeks, days, hours, minutes, seconds
 
   - name: HexColor
     def: /^#\p{XDigit}{6}$/             # defines a 32 bit color using the HEX definition #RRGGBB
-
-  - name: Keyed(T)                      # a key value pair, where the key is a string
-    def:
-      key: String                       # key as a string
-      value: T                          # value
 
 # This YAML document defines a type based schema for YAML documents. It consists of a def and a context.
 

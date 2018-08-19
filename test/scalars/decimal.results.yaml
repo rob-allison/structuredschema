@@ -1,0 +1,13 @@
+- []
+- - msg: unmatched_literal
+    path: []
+    type: 6.75
+    value: 7.75
+- - msg: unmatched_literal
+    path: []
+    type: 6.75
+    value: 23423234234.32423423234
+- - msg: unmatched_literal
+    path: []
+    type: 6.75
+    value: 54.34375565868e56

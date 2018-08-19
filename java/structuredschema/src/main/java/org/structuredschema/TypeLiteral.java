@@ -9,7 +9,7 @@ public abstract class TypeLiteral extends TypeExpression
 	{
 		if ( !validate( val ) )
 		{
-			errors.add( "unmatched literal", val, toDefinition( ) );
+			errors.add( "unmatched_literal", val, toDefinition( ) );
 		}
 	}
 

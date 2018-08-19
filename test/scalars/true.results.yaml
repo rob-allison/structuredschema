@@ -1,0 +1,9 @@
+- []
+- - msg: unmatched_literal
+    path: []
+    type: true
+    value: false
+- - msg: unmatched_literal
+    path: []
+    type: true
+    value: null

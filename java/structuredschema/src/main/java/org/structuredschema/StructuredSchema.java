@@ -282,7 +282,7 @@ public class StructuredSchema
 						{
 							if ( fvexpr.isRequired( ) )
 							{
-								errors.add( "missing field " + key, val, writeDef( def ) );
+								errors.add( "missing_field " + key, val, writeDef( def ) );
 							}
 						}
 					}
@@ -297,13 +297,13 @@ public class StructuredSchema
 				{
 					if ( !map.containsKey( key ) )
 					{
-						errors.add( "extra field " + key, val, writeDef( def ) );
+						errors.add( "extra_field " + key, val, writeDef( def ) );
 					}
 				}
 			}
 			else
 			{
-				errors.add( "object expected", val, writeDef( def ) );
+				errors.add( "object_expected", val, writeDef( def ) );
 			}
 		}
 		else if ( def instanceof List )
@@ -324,16 +324,16 @@ public class StructuredSchema
 				}
 				else if ( list.size( ) > vlist.size( ) )
 				{
-					errors.add( "array oversize", val, writeDef( def ) );
+					errors.add( "array_oversize", val, writeDef( def ) );
 				}
 				else
 				{
-					errors.add( "array undersize", val, writeDef( def ) );
+					errors.add( "array_undersize", val, writeDef( def ) );
 				}
 			}
 			else
 			{
-				errors.add( "array expected", val, writeDef( def ) );
+				errors.add( "array_expected", val, writeDef( def ) );
 			}
 		}
 		else if ( def instanceof TypeExpression )

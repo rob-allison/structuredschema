@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,16 +26,18 @@ public class IntegrationTest
 	private static final Yaml yaml = new Yaml( );
 	private static final File dir = new File( System.getProperty( "dir" ) );
 
+	private final String group;
 	private final String sname;
-	private final String name;
+	private final int index;
 	private final Object schema;
 	private final Object test;
 	private final Object result;
 
-	public IntegrationTest( String sname, String name, Object schema, Object test, Object result )
+	public IntegrationTest( String group, String sname, int index, Object schema, Object test, Object result )
 	{
+		this.group = group;
 		this.sname = sname;
-		this.name = name;
+		this.index = index;
 		this.schema = schema;
 		this.test = test;
 		this.result = result;
@@ -47,44 +51,57 @@ public class IntegrationTest
 
 		if ( !result.equals( errors ) )
 		{
-			System.out.println( sname + "." + name );
+			Map<String,Object> msg = new LinkedHashMap<>( );
+			msg.put( "group", group );
+			msg.put( "schema", sname );
+			msg.put( "test", index );
+			msg.put( "expected", result );
+			msg.put( "actual", errors );
 			Writer writer = new OutputStreamWriter( System.out );
-			writer.write( "expected:\n" );
-			yaml.dump( result, writer );
-			writer.write( "actual:\n" );
-			yaml.dump( errors, writer );
+			yaml.dump( msg, writer );
 			writer.flush( );
 		}
-		
+
 		Assert.assertEquals( result, errors );
 	}
 
-	@Parameterized.Parameters(name = "{0}.{1}")
+	@Parameterized.Parameters(name = "{0}.{1}#{2}")
 	public static Collection<Object> schemas( ) throws FileNotFoundException
 	{
 		List<Object> params = new LinkedList<>( );
 
-		for ( File sdir : dir.listFiles( ) )
+		for ( File gfile : dir.listFiles() )
 		{
-			String sname = sdir.getName( );
-			Object schema = yaml.load( new FileReader( new File( sdir, "schema.yaml" ) ) );
-
-			File[] tfiles = sdir.listFiles( new FilenameFilter( )
+			for ( File sfile : gfile.listFiles( new FilenameFilter( )
 			{
 				@Override
 				public boolean accept( File dir, String name )
 				{
-					return name.endsWith( ".test.yaml" );
+					return name.endsWith( "schema.yaml" );
 				}
-			} );
-
-			for ( File tfile : tfiles )
+			} ) )
 			{
-				String name = tfile.getName( ).replace( ".test.yaml", "" );
-				Object test = yaml.load( new FileReader( tfile ) );
-				File rfile = new File( sdir, name + ".result.yaml" );
-				Object result = yaml.load( new FileReader( rfile ) );
-				params.add( new Object[] { sname, name, schema, test, result } );
+				Object schema = yaml.load( new FileReader( sfile ) );
+
+				String sname = sfile.getName( ).replace( ".schema.yaml", "" );
+				File tfile = new File( gfile, sname + ".tests.yaml" );
+				File rfile = new File( gfile, sname + ".results.yaml" );
+
+				List<Object> tests = yaml.load( new FileReader( tfile ) );
+				List<Object> results = yaml.load( new FileReader( rfile ) );
+				if ( tests.size( ) == results.size( ) )
+				{
+					for ( int i = 0; i < tests.size( ); i++ )
+					{
+						Object test = tests.get( i );
+						Object result = results.get( i );
+						params.add( new Object[] { gfile.getName( ), sname, i, schema, test, result } );
+					}
+				}
+				else
+				{
+					throw new RuntimeException( "size mismatch tests and results" );
+				}
 			}
 		}
 

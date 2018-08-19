@@ -15,7 +15,7 @@ public class StringValue extends TypeLiteral
 
 	public static String regex( )
 	{
-		return "^_.*_$";
+		return "_.*_";
 	}
 
 	public static StringValue parseString( String str )
@@ -61,5 +61,4 @@ public class StringValue extends TypeLiteral
 		writer.write( value.replace( "_", "__" ) );
 		writer.write( '_' );
 	}
-
 }

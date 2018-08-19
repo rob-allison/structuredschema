@@ -41,12 +41,12 @@ public class IntegerInterval extends TypeLiteral
 
 	public static String regex( )
 	{
-		return "(INTEGER)?\\.\\.(INTEGER)?(/INTEGER)?".replace( "INTEGER", IntegerValue.regex( ) );
+		return "(?<low>\\-?\\d+)?\\.\\.(?<high>\\-?\\d+)?(/(?<step>\\d+))?";
 	}
 
 	public static IntegerInterval parseInterval( String str )
 	{
-		Pattern p = Pattern.compile( "(?<low>\\d*)\\.\\.(?<high>\\d*)(/(?<step>\\d*))?" );
+		Pattern p = Pattern.compile( regex( ) );
 		Matcher m = p.matcher( str );
 		if ( m.matches( ) )
 		{

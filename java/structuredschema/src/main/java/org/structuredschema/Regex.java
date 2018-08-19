@@ -17,7 +17,7 @@ public class Regex extends TypeLiteral
 
 	public static String regex( )
 	{
-		return "^/.*/$";
+		return "/.*/";
 	}
 
 	public static Regex parseRegex( String str )

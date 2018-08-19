@@ -1,0 +1,18 @@
+- []
+- - msg: unmatched_literal
+    path: []
+    type: -8..32
+    value: -9
+- - msg: unmatched_literal
+    path: []
+    type: -8..32
+    value: 36
+- - msg: unmatched_literal
+    path: []
+    type: -8..32
+    value: 342342342342342
+- - msg: unmatched_literal
+    path: []
+    type: -8..32
+    value: -4234234234
+

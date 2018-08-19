@@ -42,7 +42,7 @@ public class DecimalInterval extends TypeLiteral
 
 	public static DecimalInterval parseInterval( String str )
 	{
-		Pattern p = Pattern.compile( "(?<low>\\d+\\.\\d+)?\\.\\.\\.(?<high>\\d+\\.\\d+)?(/(?<step>\\d+\\.\\d+))?" );
+		Pattern p = Pattern.compile( regex( ) );
 		Matcher m = p.matcher( str );
 		if ( m.matches( ) )
 		{
@@ -80,6 +80,6 @@ public class DecimalInterval extends TypeLiteral
 
 	public static String regex( )
 	{
-		return "(DECIMAL)?\\.\\.\\.(DECIMAL)?(/DECIMAL)?".replace( "DECIMAL", DecimalValue.regex( ) );
+		return "(?<low>\\-?\\d+\\.\\d+)?\\.\\.\\.(?<high>\\-?\\d+\\.\\d+)?(/(?<step>\\d+\\.\\d+))?";
 	}
 }

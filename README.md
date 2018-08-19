@@ -4,7 +4,7 @@ StructuredSchema is a language neutral specification for the validation of struc
 
 # Structured data
 
-Structured data is defined as data having an abstract structure as defined in the JSON specification, with the exception that integers and decimals are considered separately. Thus it comprises of boolean, integer, decimal, string as scalar values, plus arrays (aka lists, sequences) and objects (mapping values to string keys) as compound values. There is also the null value.
+Structured data is defined as data having the abstract structure defined in the JSON specification, with the exception that integers and decimals are considered separately. Thus it comprises of boolean, integer, decimal, string as scalar values, plus arrays (aka lists, sequences) and objects (mapping values to string keys) as compound values. There is also the null value.
 
 Though JSON defines a text format, the underlying abstract data structure is general, and can be reified, displayed and transported in many formats (for example as YAML documents, javascript objects, protobuf bitpacking etc). Note, however, that formats often have capabilities beyond this structuring, and care should be taken to not exceed this abstract structure. 
 
@@ -20,7 +20,7 @@ The result of validation can itself be structured data - as a list of validation
 
 Corresponding to the base data types (Boolean, Integer, Decimal, String, Object, Array and Null), *type literals* define subsets of each data type.
 
-For Boolean, Integer, Decimal, and Null types, type literals corresponding to a single value in those types may be formed as the value itself (preferred) or as string. For example 52 or "52".
+For Boolean, Integer, Decimal, and Null types, type literals corresponding to a single value in those types may be formed as the value itself (preferred where possible) or as string. For example 52 or "52".
 
 ## Boolean
 
@@ -42,7 +42,7 @@ Decimal intervals have the string form 'n...m' where n,m are decimals and n<m. V
 
 As strings are treated as type expressions, special syntax is necessary to disambiguate.
 
-A string type literal corresponding to a single string is of the form '_abc_' where abc is the (possibly empty) string to be defined. Any _ in abc are escaped by doubling, eg: '_hello__world_' => 'hello_world'.
+A string type literal corresponding to a single string is of the form '\_abc\_' where abc is the (possibly empty) string to be defined. Any \_ in abc are escaped by doubling, eg: '\_hello\_\_world\_' => 'hello\_world'.
 
 Regex type literals are of the form '/regex/' where regex is a valid regex expression, any string values matching the regex fall within that type literal. Any / in regex should be escaped by doubling, eg: '/\d?//\d?/' => '\d?/\d?'.
 

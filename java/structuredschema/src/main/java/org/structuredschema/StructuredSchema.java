@@ -149,11 +149,11 @@ public class StructuredSchema
 		type.put( "name", "String" );
 		type.put( "abstract", "Boolean?" );
 		type.put( "extends", "String?" );
-		type.put( "def", "Graph(Scalar)?" );
+		type.put( "def", "*?" );
 		core.add( decl( "Type", type ) );
 
 		Map<String,Object> schema = new LinkedHashMap<>( );
-		schema.put( "def", "Graph(Scalar)" );
+		schema.put( "def", "*" );
 		schema.put( "context", "Array(Type)?" );
 		core.add( decl( "Schema", schema ) );
 
@@ -219,7 +219,7 @@ public class StructuredSchema
 				}
 				else
 				{
-					result.put( key, new FieldValueExpression( true, TypeExpression.read( def ) ) );
+					result.put( key, new FieldValueExpression( true, TypeExpression.read( value ) ) );
 				}
 			}
 			return result;
@@ -322,7 +322,7 @@ public class StructuredSchema
 						validate( v, list.get( i ), errors.item( i ) );
 					}
 				}
-				else if ( list.size( ) > vlist.size( ) )
+				else if ( list.size( ) < vlist.size( ) )
 				{
 					errors.add( "array_oversize", val, writeDef( def ) );
 				}
@@ -367,7 +367,7 @@ public class StructuredSchema
 			List<Object> result = new LinkedList<>( );
 			for ( Object item : list )
 			{
-				result.add( readDef( item ) );
+				result.add( writeDef( item ) );
 			}
 			return result;
 		}

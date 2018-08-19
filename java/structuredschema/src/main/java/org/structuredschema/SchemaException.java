@@ -21,6 +21,6 @@ public class SchemaException extends RuntimeException
 	@Override
 	public String toString( )
 	{
-		return errors.toString( );
+		return "BAD SCHEMA! " + errors.toString( );
 	}
 }

@@ -72,7 +72,7 @@ Exactly one literal, '*', matches any value, including null.
 
 # Type union
 
-Given two type expressions A and B, their type union has the form 'A|B'. A value matches if is matches either A or B. Type union is associative, so unions of more than two types can be expressed as A|B|C etc. 
+Given two type expressions A and B, their type union has the form 'A|B'. A value matches if is matches either A or B. Type union is associative, so unions of more than two types can be expressed as A|B|C etc. Note that Object and Array type literals cannot be unioned with this operator.
 
 # Named types
 
@@ -88,5 +88,10 @@ Given two type expressions A and B, their type union has the form 'A|B'. A value
 
 # Errors
 
+# Limitations
+
+# Test Suite
+
+# Implementations
 
 

@@ -82,7 +82,7 @@ public abstract class TypeExpression
 		}
 		else
 		{
-			throw new RuntimeException( "bad def" );
+			throw new RuntimeException( "bad def " + def.getClass( ) );
 		}
 	}
 

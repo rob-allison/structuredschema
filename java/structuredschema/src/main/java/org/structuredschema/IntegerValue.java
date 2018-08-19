@@ -28,6 +28,11 @@ public class IntegerValue extends TypeLiteral
 	{
 		this.value = value;
 		this.definition = definition;
+		
+		if ( value.equals( BigInteger.valueOf( 56 ) ) )
+		{
+			System.out.println( definition.getClass( ) );
+		}
 	}
 
 	@Override

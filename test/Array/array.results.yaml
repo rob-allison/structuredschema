@@ -1,0 +1,25 @@
+- []
+- - msg: unmatched_literal
+    path: [0]
+    type: /hello\d/
+    value: hello
+  - msg: unmatched_literal
+    path: [1]
+    type: 3..9
+    value: 1
+  - msg: unmatched_literal
+    path: [2]
+    type: 0.5
+    value: 6
+  - msg: unmatched_literal
+    path: [3]
+    type: null
+    value: 7
+- - msg: array_undersize
+    path: []
+    type: [/hello\d/, 3..9, 0.5, null]
+    value: []
+- - msg: array_oversize
+    path: []
+    type: [/hello\d/, 3..9, 0.5, null]
+    value: [hello, 4, 0.5, null, extra]

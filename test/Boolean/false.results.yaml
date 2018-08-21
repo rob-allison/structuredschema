@@ -1,9 +1,9 @@
-- - msg: unmatched_literal
+- - msg: invalid_value
     path: []
     type: false
     value: true
 - []
-- - msg: unmatched_literal
+- - msg: invalid_value
     path: []
     type: false
     value: null

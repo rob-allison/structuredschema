@@ -1,25 +1,36 @@
 - []
-- - msg: unmatched_literal
+- - msg: invalid_value
     path: [0]
     type: /hello\d/
     value: hello
-  - msg: unmatched_literal
+  - msg: invalid_value
     path: [1]
     type: 3..9
     value: 1
-  - msg: unmatched_literal
+  - msg: invalid_value
     path: [2]
     type: 0.5
     value: 6
-  - msg: unmatched_literal
+  - msg: invalid_value
     path: [3]
     type: null
     value: 7
-- - msg: array_undersize
+- - msg: missing_item
     path: []
-    type: [/hello\d/, 3..9, 0.5, null]
-    value: []
-- - msg: array_oversize
+    index: 0
+  - msg: missing_item
     path: []
-    type: [/hello\d/, 3..9, 0.5, null]
-    value: [hello, 4, 0.5, null, extra]
+    index: 1
+  - msg: missing_item
+    path: []
+    index: 2
+  - msg: missing_item
+    path: []
+    index: 3
+- - msg: invalid_value
+    path: [0]
+    type: /hello\d/
+    value: hello
+  - msg: extra_item
+    path: []
+    index: 4

@@ -82,8 +82,7 @@ public class StructuredSchema
 				Map<String,TypeDeclaration> ldecls = readContext( lcxt );
 				decls.putAll( ldecls );
 			}
-			
-			
+
 			Map<String,Object> lmap = standardLibrary( );
 			Object lcxt = lmap.get( "context" );
 			Map<String,TypeDeclaration> ldecls = readContext( lcxt );
@@ -106,7 +105,7 @@ public class StructuredSchema
 	public static Map<String,Object> standardLibrary( )
 	{
 		Map<String,Object> result = new HashMap<>( );
-		
+
 		List<Object> core = new LinkedList<>( );
 		core.add( decl( "Boolean", "true|false" ) );
 		core.add( decl( "Integer", ".." ) );
@@ -162,7 +161,7 @@ public class StructuredSchema
 		core.add( decl( "Library", library ) );
 
 		result.put( "context", core );
-		
+
 		return result;
 	}
 
@@ -282,14 +281,14 @@ public class StructuredSchema
 						{
 							if ( fvexpr.isRequired( ) )
 							{
-								errors.add( "missing_field " + key, val, writeDef( def ) );
+								errors.missingField( key );
 							}
 						}
 					}
 					else
 					{
 						Object vval = vmap.get( key );
-						validate( vval, fv, errors );
+						validate( vval, fv, errors.field( key ) );
 					}
 				}
 
@@ -297,13 +296,13 @@ public class StructuredSchema
 				{
 					if ( !map.containsKey( key ) )
 					{
-						errors.add( "extra_field " + key, val, writeDef( def ) );
+						errors.extraField( key );
 					}
 				}
 			}
 			else
 			{
-				errors.add( "object_expected", val, writeDef( def ) );
+				errors.invalidValue( val, writeDef( def ) );
 			}
 		}
 		else if ( def instanceof List )
@@ -314,26 +313,33 @@ public class StructuredSchema
 				List<Object> list = (List<Object>)def;
 				@SuppressWarnings("unchecked")
 				List<Object> vlist = (List<Object>)val;
-				if ( list.size( ) == vlist.size( ) )
+
+				int end = Math.max( list.size( ), vlist.size( ) );
+
+				for ( int i = 0; i < end; i++ )
 				{
-					for ( int i = 0; i < list.size( ); i++ )
+					if ( i < list.size( ) )
 					{
-						Object v = vlist.get( i );
-						validate( v, list.get( i ), errors.item( i ) );
+						if ( i < vlist.size( ) )
+						{
+							Object v = vlist.get( i );
+							validate( v, list.get( i ), errors.item( i ) );
+
+						}
+						else
+						{
+							errors.missingItem( i );
+						}
 					}
-				}
-				else if ( list.size( ) < vlist.size( ) )
-				{
-					errors.add( "array_oversize", val, writeDef( def ) );
-				}
-				else
-				{
-					errors.add( "array_undersize", val, writeDef( def ) );
+					else
+					{
+						errors.extraItem( i );
+					}
 				}
 			}
 			else
 			{
-				errors.add( "array_expected", val, writeDef( def ) );
+				errors.invalidValue( val, writeDef( def ) );
 			}
 		}
 		else if ( def instanceof TypeExpression )

@@ -88,7 +88,7 @@ public class TypeInvocation extends TypeExpression
 			}
 			else
 			{
-				errors.add( "object_expected", val, toString( ) );
+				errors.invalidValue( val, toString( ) );
 			}
 		}
 		else if ( name.equals( "Array" ) )
@@ -108,7 +108,7 @@ public class TypeInvocation extends TypeExpression
 			}
 			else
 			{
-				errors.add( "array_expected", val, toString( ) );
+				errors.invalidValue( val, toString( ) );
 			}
 		}
 		else
@@ -187,7 +187,7 @@ public class TypeInvocation extends TypeExpression
 				}
 				else
 				{
-					errors.add( "object_expected", val, toString( ) );
+					errors.invalidValue( val, toString( ) );
 				}
 			}
 		}

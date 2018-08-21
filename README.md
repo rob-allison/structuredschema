@@ -4,7 +4,11 @@ StructuredSchema is a language neutral specification for the validation of struc
 
 # Structured data
 
-Structured data is defined as data having the abstract structure defined in the JSON specification, with the exception that integers and decimals are considered separately. Thus it comprises of boolean, integer, decimal, string as scalar values, plus arrays (aka lists, sequences) and objects (mapping values to string keys) as compound values. There is also the null value.
+Structured data will be defined here as data having the abstract structure defined in the JSON specification, with the exception that integers and decimals are considered separately. Thus it comprises of boolean, integer, decimal, and string as scalar values, with array (aka lists, sequences) and object (mapping values to string keys) as compound values. There is also the null value.
+
+For clarity, the nomenklatura of the JSON spec will be adopted thoughout this project, with the addition of the following terms:
+field - the name/value pairs found in an object.
+item - a value found in an array.
 
 Though JSON defines a text format, the underlying abstract data structure is general, and can be reified, displayed and transported in many formats (for example as YAML documents, javascript objects, protobuf bitpacking etc). Note, however, that formats often have capabilities beyond this structuring, and care should be taken to not exceed this abstract structure. 
 
@@ -12,13 +16,17 @@ A *structured value* (or simply *value*) is a piece of data following this struc
 
 # Type based validation
 
-A *type* is understood as a set of structured values matching that type. A *structured schema* is the expression of a type as a structured value. A structured value can then be validated against such a schema, and passes only if it is a member of the set of values matching the type defined by the schema.
+A *type* is defined here as a set of structured values matching that type. A *structured schema* is the expression of a type as a structured value. A structured value can then be validated against such a schema, and passes only if it is a member of the set of values matching the type defined by the schema.
 
-The result of validation can itself be structured data - as a list of validation failures. An empty list indicates that validation passed.
+The result of validation is itself structured data - a list of validation failures. An empty list indicates that validation passed.
 
 # Type literals
 
-Corresponding to the base data types (Boolean, Integer, Decimal, String, Object, Array and Null), *type literals* define subsets of each data type.
+From the JSON specification, but with the separation of integers and decimals, there are the following base types:
+
+Boolean, Integer, Decimal, String, Object, Array and Null
+
+*type literals* define subsets of each data type.
 
 For Boolean, Integer, Decimal, and Null types, type literals corresponding to a single value in those types may be formed as the value itself (preferred where possible) or as string. For example 52 or "52".
 

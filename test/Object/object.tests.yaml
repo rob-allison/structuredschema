@@ -3,3 +3,7 @@
   c: hello
   d: []
 - 67
+- a: 95
+  b: 5.8
+  c: helloworld
+  d: [6]

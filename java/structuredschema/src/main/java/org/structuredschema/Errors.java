@@ -52,14 +52,51 @@ public class Errors
 	{
 		list.addAll( errors.list );
 	}
-
-	public void add( String msg, Object value, Object type )
+	
+	
+	public void missingField( String name )
+	{
+		Map<String,Object> err = new HashMap<>( );
+		err.put( "path", path( ) );
+		err.put( "fieldname", name );
+		err.put( "msg", "missing_field" );
+		list.add( err );
+	}
+	
+	public void extraField( String name )
+	{
+		Map<String,Object> err = new HashMap<>( );
+		err.put( "path", path( ) );
+		err.put( "fieldname", name );
+		err.put( "msg", "extra_field" );
+		list.add( err );
+	}
+	
+	public void missingItem( int index )
+	{
+		Map<String,Object> err = new HashMap<>( );
+		err.put( "path", path( ) );
+		err.put( "index", index );
+		err.put( "msg", "missing_item" );
+		list.add( err );
+	}
+	
+	public void extraItem( int index )
+	{
+		Map<String,Object> err = new HashMap<>( );
+		err.put( "path", path( ) );
+		err.put( "index", index );
+		err.put( "msg", "extra_item" );
+		list.add( err );
+	}
+	
+	public void invalidValue( Object value, Object type )
 	{
 		Map<String,Object> err = new HashMap<>( );
 		err.put( "path", path( ) );
 		err.put( "value", value );
 		err.put( "type", type );
-		err.put( "msg", msg );
+		err.put( "msg", "invalid_value" );
 		list.add( err );
 	}
 

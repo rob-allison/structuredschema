@@ -20,7 +20,7 @@ public class FieldValueExpression
 	{
 		return expression;
 	}
-	
+
 	public static FieldValueExpression read( String str )
 	{
 		if ( str.endsWith( "?" ) )
@@ -39,12 +39,13 @@ public class FieldValueExpression
 		return new FieldValueExpression( required, expression.replace( pname, pexpr ) );
 	}
 
-	public Object toDefinition( )
+	@Override
+	public String toString( )
 	{
-		Object def = expression.toDefinition( );
+		String def = expression.toString( );
 		if ( !required )
 		{
-			def = def.toString( ) + "?";
+			def += "?";
 		}
 		return def;
 	}

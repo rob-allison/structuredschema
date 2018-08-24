@@ -6,17 +6,10 @@ import java.io.Writer;
 public class BooleanValue extends TypeLiteral
 {
 	private final boolean value;
-	private final Object definition;
 
 	public BooleanValue( boolean value )
 	{
-		this( value, value );
-	}
-
-	public BooleanValue( boolean value, Object definition )
-	{
 		this.value = value;
-		this.definition = definition;
 	}
 
 	@Override
@@ -39,11 +32,11 @@ public class BooleanValue extends TypeLiteral
 	{
 		if ( expr.equals( "true" ) )
 		{
-			return new BooleanValue( true, expr );
+			return new BooleanValue( true );
 		}
 		else if ( expr.equals( "false" ) )
 		{
-			return new BooleanValue( false, expr );
+			return new BooleanValue( false );
 		}
 		else
 		{
@@ -55,11 +48,5 @@ public class BooleanValue extends TypeLiteral
 	public void compose( Writer writer ) throws IOException
 	{
 		writer.write( value ? "true" : "false" );
-	}
-
-	@Override
-	public Object toDefinition( )
-	{
-		return definition;
 	}
 }

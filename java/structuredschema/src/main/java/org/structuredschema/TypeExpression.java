@@ -5,8 +5,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,59 +29,6 @@ public abstract class TypeExpression
 			throw new RuntimeException( e );
 		}
 		return writer.toString( );
-	}
-	
-	public Object toDefinition( )
-	{
-		return toString( );
-	}
-	
-	public static TypeExpression read( Object def )
-	{
-		if ( def instanceof String )
-		{
-			String string = (String)def;
-			return parse( string );
-		}
-		else if ( def instanceof Integer )
-		{
-			Integer val = (Integer)def;
-			return new IntegerValue( val );
-		}
-		else if ( def instanceof Long )
-		{
-			Long val = (Long)def;
-			return new IntegerValue( val );
-		}
-		else if ( def instanceof BigInteger )
-		{
-			BigInteger val = (BigInteger)def;
-			return new IntegerValue( val );
-		}
-		else if ( def instanceof Float )
-		{
-			Float val = (Float)def;
-			return new DecimalValue( val );
-		}
-		else if ( def instanceof Double )
-		{
-			Double val = (Double)def;
-			return new DecimalValue( val );
-		}
-		else if ( def instanceof BigDecimal )
-		{
-			BigDecimal val = (BigDecimal)def;
-			return new DecimalValue( val );
-		}
-		else if ( def instanceof Boolean )
-		{
-			Boolean val = (Boolean)def;
-			return new BooleanValue( val );
-		}
-		else
-		{
-			throw new RuntimeException( "bad def " + def.getClass( ) );
-		}
 	}
 
 	public static TypeExpression parse( String string )

@@ -27,7 +27,7 @@ public class Errors
 	{
 		return list;
 	}
-	
+
 	public boolean isEmpty( )
 	{
 		return list.isEmpty( );
@@ -42,62 +42,59 @@ public class Errors
 	{
 		return new Errors( this, list, index );
 	}
-	
+
 	public Errors detach( )
 	{
 		return new Errors( parent, new LinkedList<>( ), step );
 	}
-	
+
 	public void repend( Errors errors )
 	{
 		list.addAll( errors.list );
 	}
-	
-	
+
 	public void missingField( String name )
 	{
-		Map<String,Object> err = new HashMap<>( );
-		err.put( "path", path( ) );
+		Map<String,Object> err = error( "missing_field" );
 		err.put( "fieldname", name );
-		err.put( "msg", "missing_field" );
 		list.add( err );
 	}
-	
+
 	public void extraField( String name )
 	{
-		Map<String,Object> err = new HashMap<>( );
-		err.put( "path", path( ) );
+		Map<String,Object> err = error( "extra_field" );
 		err.put( "fieldname", name );
-		err.put( "msg", "extra_field" );
 		list.add( err );
 	}
-	
+
 	public void missingItem( int index )
 	{
-		Map<String,Object> err = new HashMap<>( );
-		err.put( "path", path( ) );
+		Map<String,Object> err = error( "missing_item" );
 		err.put( "index", index );
-		err.put( "msg", "missing_item" );
 		list.add( err );
 	}
-	
+
 	public void extraItem( int index )
 	{
-		Map<String,Object> err = new HashMap<>( );
-		err.put( "path", path( ) );
+		Map<String,Object> err = error( "extra_item" );
 		err.put( "index", index );
-		err.put( "msg", "extra_item" );
 		list.add( err );
 	}
-	
+
 	public void invalidValue( Object value, Object type )
+	{
+		Map<String,Object> err = error( "invalid_value" );
+		err.put( "value", value );
+		err.put( "type", type );
+		list.add( err );
+	}
+
+	private Map<String,Object> error( String msg )
 	{
 		Map<String,Object> err = new HashMap<>( );
 		err.put( "path", path( ) );
-		err.put( "value", value );
-		err.put( "type", type );
-		err.put( "msg", "invalid_value" );
-		list.add( err );
+		err.put( "message", msg );
+		return err;
 	}
 
 	private List<Object> path( )

@@ -1,24 +1,24 @@
-<type expression>     ::= <name> <type parameter>*
+<type expression>     ::= <name> <type parameters>? 
                         | <type literal>
                         | <type expression> "|" <type expression>
-<type parameter>      ::= "[" <type expression> "]"
-<type literal>        ::= <boolean range>
-                        | <integer range>
-                        | <decimal range>
+<type parameters>     ::= "(" <parameter list> ")"
+<parameter list>      ::= <type expression> 
+                        | <parameter list> "," <type expression>
+<type literal>        ::= <boolean literal>
+                        | <integer literal>
+                        | <decimal literal>
                         | "/" <regex> "/"
+                        | "_" <string> "_"
                         | "null"
                         | "*"
-<boolean range>       ::= "true" 
+<boolean literal>     ::= "true" 
                         | "false" 
-                        | "any"
-<integer range>       ::= <integer>
+<integer literal>     ::= <integer>
                         | <integer interval>
-                        | <integer range> "," <integer range>
 <integer interval>    ::= <integer>? ".." <integer>? <integer step>?
 <integer step>        ::= "/" <integer>
-<decimal range>       ::= <decimal>
+<decimal literal>     ::= <decimal>
                         | <decimal interval>
-                        | <decimal range> "," <decimal range>
 <decimal interval>    ::= <decimal>? "..." <decimal>? <decimal step>?
 <decimal step>        ::= "/" <decimal>
 
@@ -26,5 +26,6 @@
 <name>                (alphanumeric, possibly with - and _, without spaces, at least one alpha character)
 <integer>             (signed integer form, possibly with exponention)
 <decimal>             (signed decimal form, possibly with exponention)
-<regex>               (valid regex form, but any } escaped as \})
+<regex>               (valid regex form, but / escaped with /)
+<string>              (any string, but _ escaped with _)
 

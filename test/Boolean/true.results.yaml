@@ -1,9 +1,9 @@
 - []
-- - msg: invalid_value
+- - message: invalid_value
     path: []
-    type: true
+    type: "true"
     value: false
-- - msg: invalid_value
+- - message: invalid_value
     path: []
-    type: true
+    type: "true"
     value: null

@@ -130,6 +130,7 @@ public class StructuredSchema
 		core.add( decl( "NotNull", "Scalar|Object|Array" ) );
 		core.add( decl( "Tree(T,X)", "T|Array(Tree(T),X)" ) );
 		core.add( decl( "Graph(T)", "T|Object(Graph(T))" ) );
+		core.add( decl( "Structured(T,X)", "T|Object(Structured(T))|Array(Structured(T,X))" ) );
 		core.add( decl( "Grid(T,X,Y)", "Array(Array(T,Y),X)" ) );
 		core.add( decl( "Grid3d(T,X,Y,Z)", "Array(Array(Array(T,Z),Y),X)" ) );
 
@@ -148,11 +149,11 @@ public class StructuredSchema
 		type.put( "name", "String" );
 		type.put( "abstract", "Boolean?" );
 		type.put( "extends", "String?" );
-		type.put( "def", "*?" );
+		type.put( "def", "Structured(String)?" );
 		core.add( decl( "Type", type ) );
 
 		Map<String,Object> schema = new LinkedHashMap<>( );
-		schema.put( "def", "*" );
+		schema.put( "def", "Structured(String)" );
 		schema.put( "context", "Array(Type)?" );
 		core.add( decl( "Schema", schema ) );
 
@@ -195,11 +196,7 @@ public class StructuredSchema
 
 	public static Object readDef( Object def )
 	{
-		if ( def == null )
-		{
-			return Null.instance;
-		}
-		else if ( def instanceof Map )
+		if ( def instanceof Map )
 		{
 			@SuppressWarnings("unchecked")
 			Map<String,Object> map = (Map<String,Object>)def;
@@ -208,17 +205,18 @@ public class StructuredSchema
 			{
 				String key = entry.getKey( );
 				Object value = entry.getValue( );
-				if ( value instanceof String )
-				{
-					result.put( key, FieldValueExpression.read( (String)value ) );
-				}
-				else if ( value instanceof Map || value instanceof List )
+				
+				if ( value instanceof Map || value instanceof List )
 				{
 					result.put( key, readDef( value ) );
 				}
+				else if ( value instanceof String )
+				{
+					result.put( key, FieldValueExpression.read( (String)value ) );
+				}
 				else
 				{
-					result.put( key, new FieldValueExpression( true, TypeExpression.read( value ) ) );
+					throw new RuntimeException( "bad def");
 				}
 			}
 			return result;
@@ -234,9 +232,13 @@ public class StructuredSchema
 			}
 			return result;
 		}
+		else if ( def instanceof String )
+		{
+			return TypeExpression.parse( (String)def );
+		}
 		else
 		{
-			return TypeExpression.read( def );
+			throw new RuntimeException( "bad def");
 		}
 	}
 
@@ -380,12 +382,12 @@ public class StructuredSchema
 		else if ( def instanceof TypeExpression )
 		{
 			TypeExpression expr = (TypeExpression)def;
-			return expr.toDefinition( );
+			return expr.toString( );
 		}
 		else if ( def instanceof FieldValueExpression )
 		{
 			FieldValueExpression fvexpr = (FieldValueExpression)def;
-			return fvexpr.toDefinition( );
+			return fvexpr.toString( );
 		}
 		else
 		{

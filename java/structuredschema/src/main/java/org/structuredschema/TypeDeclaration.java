@@ -26,7 +26,8 @@ public class TypeDeclaration
 			List<String> params = new LinkedList<String>( );
 			String name = parseName( reader, params );
 			String ext = (String)map.get( "extends" );
-			Object def = StructuredSchema.readDef( map.get( "def" ) );
+
+			Object def = map.containsKey( "def" ) ? StructuredSchema.readDef( map.get( "def" ) ) : null;
 			Boolean ab = (Boolean)map.get( "abstract" );
 			if ( ab == null )
 			{

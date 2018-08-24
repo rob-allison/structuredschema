@@ -7,32 +7,20 @@ import java.math.BigInteger;
 public class IntegerValue extends TypeLiteral
 {
 	private final BigInteger value;
-	private final Object definition;
-
-	public IntegerValue( BigInteger value )
-	{
-		this( value, value );
-	}
 
 	public IntegerValue( Long value )
 	{
-		this( BigInteger.valueOf( value ), value );
+		this( BigInteger.valueOf( value ) );
 	}
 	
 	public IntegerValue( Integer value )
 	{
-		this( BigInteger.valueOf( value ), value );
+		this( BigInteger.valueOf( value ) );
 	}
 	
-	public IntegerValue( BigInteger value, Object definition )
+	public IntegerValue( BigInteger value )
 	{
 		this.value = value;
-		this.definition = definition;
-		
-		if ( value.equals( BigInteger.valueOf( 56 ) ) )
-		{
-			System.out.println( definition.getClass( ) );
-		}
 	}
 
 	@Override
@@ -81,12 +69,6 @@ public class IntegerValue extends TypeLiteral
 
 	public static IntegerValue parseValue( String str )
 	{
-		return new IntegerValue( new BigInteger( str ), str );
-	}
-	
-	@Override
-	public Object toDefinition( )
-	{
-		return definition;
+		return new IntegerValue( new BigInteger( str ) );
 	}
 }

@@ -4,7 +4,7 @@ StructuredSchema is a language neutral specification for the validation of struc
 
 # Structured data
 
-Structured data will be defined here as data having the abstract structure defined in the JSON specification, with the exception that integers and decimals are considered separately. Thus it comprises of boolean, integer, decimal, and string as scalar values, with array (aka lists, sequences) and object (mapping values to string keys) as compound values. There is also the null value.
+Structured data will be defined here as data having the abstract structure defined in the JSON specification, with the exception that integers and decimals are considered separately. Thus it comprises of Boolean, Integer, Decimal, and String as scalar values, with Array (aka lists, sequences) and Object (mapping values to string keys) as compound values. There is also the Null type with its single value null.
 
 For clarity, the nomenklatura of the JSON spec will be adopted thoughout this project, with the addition of the following terms:
 field - the name/value pairs found in an object.
@@ -16,19 +16,26 @@ A *structured value* (or simply *value*) is a piece of data following this struc
 
 # Type based validation
 
-A *type* is defined here as a set of structured values matching that type. A *structured schema* is the expression of a type as a structured value. A structured value can then be validated against such a schema, and passes only if it is a member of the set of values matching the type defined by the schema.
+A *type* is defined here as a set of structured values matching that type. A *structured schema* is the expression of a type as a structured value. A structured value can then be validated against such a schema, and passes only if it is a member of the set of values matching the type defined by the schema. The result of validation is itself structured data - a list of validation failures. An empty list indicates that validation passed.
 
-The result of validation is itself structured data - a list of validation failures. An empty list indicates that validation passed.
+The structured schema is an object with two fields - a *type definition* and (optionally) a *context*. The type definition is an object or array with type definitions as field or item values respectively, or a string denoting a *type expression*, as described below.
+
+# Object type definition
+
+Where a type definition is an object, then a matching value must also be an object with the same fields (except optional fields, see below). The value of each field in the matching object must match the type definition found at the corrsponding field value in the object type definition, and there shall be no additional fields. Where a field type definition is a string type expression, then the type expression may have a '?' appended to indicate the field is optional. Note that therefore field type definitions that are themselves objects, or arrays, cannot be optional - instead it is necessary to define them as named types, see below.
+
+# Array type definition
+
+Where a tyep definition is an array, the matching value must also be an array, of the same length, with each item value matching the type defintiion found at the coreesponding index in the array type defintion. This is appropriate for fixed length, possibly hetegeonous, arrays. For varible length honogenous arrays, the built in type constructor 'Array' is used, see below.
+
+
+# Type expression
+
+A *type expression* is a string that resolves to a type. It comprises of either a named type, optionally with type expression parameters, a type literal, or a union of two or more type expressions. The full BNF grammar is here. 
 
 # Type literals
 
-From the JSON specification, but with the separation of integers and decimals, there are the following base types:
-
-Boolean, Integer, Decimal, String, Object, Array and Null
-
-*type literals* define subsets of each data type.
-
-For Boolean, Integer, Decimal, and Null types, type literals corresponding to a single value in those types may be formed as the value itself (preferred where possible) or as string. For example 52 or "52".
+For the scalar types, ie not object or array, a *type literal* defines a subset of each data type.
 
 ## Boolean
 
@@ -48,23 +55,9 @@ Decimal intervals have the string form 'n...m' where n,m are decimals and n<m. V
 
 ## String
 
-As strings are treated as type expressions, special syntax is necessary to disambiguate.
-
 A string type literal corresponding to a single string is of the form '\_abc\_' where abc is the (possibly empty) string to be defined. Any \_ in abc are escaped by doubling, eg: '\_hello\_\_world\_' => 'hello\_world'.
 
 Regex type literals are of the form '/regex/' where regex is a valid regex expression, any string values matching the regex fall within that type literal. Any / in regex should be escaped by doubling, eg: '/\d?//\d?/' => '\d?/\d?'.
-
-## Object
-
-Defined in Object form, with a key corresponding to each key in a matching Object value. The key values are type definitions
-
-
-Compare with the Object builtin named type.
-
-## Array
-
-
-
 
 ## Null
 
@@ -72,27 +65,23 @@ Exactly one literal, 'null', matches only a null value.
 
 ## Wild
 
-Exactly one literal, '*', matches any value, including null.
-
-## Discriminator
-
-# Type expressions
+Exactly one literal, '*', matches anything: Object, Array or scalar, including null.
 
 # Type union
 
 Given two type expressions A and B, their type union has the form 'A|B'. A value matches if is matches either A or B. Type union is associative, so unions of more than two types can be expressed as A|B|C etc. Note that Object and Array type literals cannot be unioned with this operator.
 
-# Named types
+# Named types and the context
 
 ## Parameter passing and defaults
 
 ## Builtin named types, Object and Array
 
-## Standard Library
-
 ## Extended types
 
 ## Discriminated unions 
+
+## Standard Library
 
 # Errors
 

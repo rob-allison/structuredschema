@@ -1,14 +1,14 @@
 - []
 - []
-- - msg: invalid_value
+- - message: invalid_value
     path: []
     type: -8.5...32.7
     value: 36.0
-- - msg: invalid_value
+- - message: invalid_value
     path: []
     type: -8.5...32.7
     value: 342342342342342.233
-- - msg: invalid_value
+- - message: invalid_value
     path: []
     type: -8.5...32.7
     value: -423.4234234

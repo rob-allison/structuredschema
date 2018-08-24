@@ -1,5 +1,5 @@
 - []
-- - msg: invalid_value
+- - message: invalid_value
     path: []
     type: _hello__world_
     value: hll_wrld

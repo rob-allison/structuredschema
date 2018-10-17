@@ -7,30 +7,30 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TypeExpressionList extends TypeExpression
+public class TypeExpressionUnion extends TypeExpression
 {
-	private final List<TypeExpression> typeExpressions;
+	private final List<TypeExpression> expressions;
 
-	public TypeExpressionList( List<TypeExpression> typeExpressions )
+	public TypeExpressionUnion( List<TypeExpression> typeExpressions )
 	{
-		this.typeExpressions = typeExpressions;
+		this.expressions = typeExpressions;
 	}
 
-	public List<TypeExpression> getTypeExpressions( )
+	public List<TypeExpression> getExpressions( )
 	{
-		return typeExpressions;
+		return expressions;
 	}
 	
 	@Override
 	public TypeExpression replace( String name, TypeExpression expression )
 	{
-		return new TypeExpressionList( typeExpressions.stream( ).map( e -> e.replace( name, expression ) ).collect( Collectors.toList( ) ) );
+		return new TypeExpressionUnion( expressions.stream( ).map( e -> e.replace( name, expression ) ).collect( Collectors.toList( ) ) );
 	}
 
 	@Override
 	public void compose( Writer writer ) throws IOException
 	{
-		for ( Iterator<TypeExpression> iter = typeExpressions.iterator( ); iter.hasNext( ); )
+		for ( Iterator<TypeExpression> iter = expressions.iterator( ); iter.hasNext( ); )
 		{
 			TypeExpression expr = iter.next( );
 			expr.compose( writer );
@@ -45,7 +45,7 @@ public class TypeExpressionList extends TypeExpression
 	public void validate( Object val, StructuredSchema schema, Errors errors )
 	{
 		List<Errors> dets = new LinkedList<>( );
-		for ( TypeExpression expr : typeExpressions )
+		for ( TypeExpression expr : expressions )
 		{
 			Errors det = errors.detach( );
 			expr.validate( val, schema, det );
@@ -58,12 +58,7 @@ public class TypeExpressionList extends TypeExpression
 				dets.add( det );
 			}
 		}
-				
-		for ( Errors det : dets )
-		{
-			errors.repend( det );
-		}
+		
+		errors.invalidValue( val, toString( ), dets.stream( ).map( e -> e.toList( ) ).collect( Collectors.toList( ) ) );
 	}
-	
-	
 }

@@ -17,7 +17,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.structuredschema.StructuredContext;
 import org.structuredschema.StructuredSchema;
+import org.structuredschema.ValidationException;
 import org.yaml.snakeyaml.Yaml;
 
 @RunWith(Parameterized.class)
@@ -29,15 +31,17 @@ public class IntegrationTest
 	private final String group;
 	private final String sname;
 	private final int index;
+	private final Object library;
 	private final Object schema;
 	private final Object test;
 	private final Object result;
 
-	public IntegrationTest( String group, String sname, int index, Object schema, Object test, Object result )
+	public IntegrationTest( String group, String sname, int index, Object library, Object schema, Object test, Object result )
 	{
 		this.group = group;
 		this.sname = sname;
 		this.index = index;
+		this.library = library;
 		this.schema = schema;
 		this.test = test;
 		this.result = result;
@@ -46,8 +50,18 @@ public class IntegrationTest
 	@Test
 	public void test( ) throws IOException
 	{
-		StructuredSchema sch = StructuredSchema.read( schema );
-		Object errors = sch.validate( test );
+		StructuredContext context = library != null ? StructuredContext.withLibrary( library ) : StructuredContext.core( );
+		StructuredSchema sch = context.read( schema );
+		Object errors = new LinkedList<Object>( );
+		
+		try
+		{
+			sch.validate( test );
+		}
+		catch ( ValidationException e )
+		{
+			errors = e.getErrors( );
+		}
 
 		if ( !result.equals( errors ) )
 		{
@@ -86,16 +100,20 @@ public class IntegrationTest
 				String sname = sfile.getName( ).replace( ".schema.yaml", "" );
 				File tfile = new File( gfile, sname + ".tests.yaml" );
 				File rfile = new File( gfile, sname + ".results.yaml" );
+				File lfile = new File( gfile, sname + ".library.yaml" );
 
 				List<Object> tests = yaml.load( new FileReader( tfile ) );
 				List<Object> results = yaml.load( new FileReader( rfile ) );
+				List<Object> library = lfile.exists( ) ? yaml.load( new FileReader( lfile ) ) : null;
+				
+				
 				if ( tests.size( ) == results.size( ) )
 				{
 					for ( int i = 0; i < tests.size( ); i++ )
 					{
 						Object test = tests.get( i );
 						Object result = results.get( i );
-						params.add( new Object[] { gfile.getName( ), sname, i, schema, test, result } );
+						params.add( new Object[] { gfile.getName( ), sname, i, library, schema, test, result } );
 					}
 				}
 				else

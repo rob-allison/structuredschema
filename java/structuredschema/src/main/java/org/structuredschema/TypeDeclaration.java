@@ -27,7 +27,7 @@ public class TypeDeclaration
 			String name = parseName( reader, params );
 			String ext = (String)map.get( "extends" );
 
-			Object def = map.containsKey( "def" ) ? StructuredSchema.readDef( map.get( "def" ) ) : null;
+			Object def = map.containsKey( "def" ) ? StructuredContext.readDef( map.get( "def" ) ) : null;
 			Boolean ab = (Boolean)map.get( "abstract" );
 			if ( ab == null )
 			{

@@ -75,6 +75,8 @@ Given two type expressions A and B, their type union has the form 'A|B'. A value
 
 ## Parameter passing and defaults
 
+Named types can be declared with parameters, and can be invoked with tyep expression parameters.  
+
 ## Builtin named types, Object and Array
 
 ## Extended types

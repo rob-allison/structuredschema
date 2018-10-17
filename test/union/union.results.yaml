@@ -1,85 +1,110 @@
 - []
 - - path: []
+    union:
+    - - path: []
+        message: invalid_value
+        type: "true"
+        value: false
+    - - path: []
+        message: invalid_value
+        type: 5..9
+        value: false
+    - - path: []
+        message: invalid_value
+        type: _hello_
+        value: false
+    - - path: []
+        message: invalid_value
+        type: "6.8"
+        value: false
     message: invalid_value
-    type: "true"
-    value: false
-  - path: []
-    message: invalid_value
-    type: 5..9
-    value: false
-  - path: []
-    message: invalid_value
-    type: _hello_
-    value: false
-  - path: []
-    message: invalid_value
-    type: "6.8"
+    type: true|5..9|_hello_|6.8
     value: false
 - - path: []
+    union:
+    - - path: []
+        message: invalid_value
+        type: 'true'
+        value: null
+    - - path: []
+        message: invalid_value
+        type: 5..9
+        value: null
+    - - path: []
+        message: invalid_value
+        type: _hello_
+        value: null
+    - - path: []
+        message: invalid_value
+        type: '6.8'
+        value: null
     message: invalid_value
-    type: "true"
-    value: null
-  - path: []
-    message: invalid_value
-    type: 5..9
-    value: null
-  - path: []
-    message: invalid_value
-    type: _hello_
-    value: null
-  - path: []
-    message: invalid_value
-    type: "6.8"
+    type: true|5..9|_hello_|6.8
     value: null
 - - path: []
+    union:
+    - - path: []
+        message: invalid_value
+        type: 'true'
+        value: 4
+    - - path: []
+        message: invalid_value
+        type: 5..9
+        value: 4
+    - - path: []
+        message: invalid_value
+        type: _hello_
+        value: 4
+    - - path: []
+        message: invalid_value
+        type: '6.8'
+        value: 4
     message: invalid_value
-    type: "true"
-    value: 4
-  - path: []
-    message: invalid_value
-    type: 5..9
-    value: 4
-  - path: []
-    message: invalid_value
-    type: _hello_
-    value: 4
-  - path: []
-    message: invalid_value
-    type: "6.8"
+    type: true|5..9|_hello_|6.8
     value: 4
 - []
 - []
 - - path: []
+    union:
+    - - path: []
+        message: invalid_value
+        type: 'true'
+        value: helloworld
+    - - path: []
+        message: invalid_value
+        type: 5..9
+        value: helloworld
+    - - path: []
+        message: invalid_value
+        type: _hello_
+        value: helloworld
+    - - path: []
+        message: invalid_value
+        type: '6.8'
+        value: helloworld
     message: invalid_value
-    type: "true"
-    value: helloworld
-  - path: []
-    message: invalid_value
-    type: 5..9
-    value: helloworld
-  - path: []
-    message: invalid_value
-    type: _hello_
-    value: helloworld
-  - path: []
-    message: invalid_value
-    type: "6.8"
+    type: true|5..9|_hello_|6.8
     value: helloworld
 - []
 - - path: []
+    union:
+    - - path: []
+        message: invalid_value
+        type: "true"
+        value: 6.9
+    - - path: []
+        message: invalid_value
+        type: 5..9
+        value: 6.9
+    - - path: []
+        message: invalid_value
+        type: _hello_
+        value: 6.9
+    - - path: []
+        message: invalid_value
+        type: "6.8"
+        value: 6.9
     message: invalid_value
-    type: "true"
-    value: 6.9
-  - path: []
-    message: invalid_value
-    type: 5..9
-    value: 6.9
-  - path: []
-    message: invalid_value
-    type: _hello_
-    value: 6.9
-  - path: []
-    message: invalid_value
-    type: "6.8"
+    type: true|5..9|_hello_|6.8
     value: 6.9
 

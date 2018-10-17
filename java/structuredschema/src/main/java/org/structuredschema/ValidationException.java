@@ -2,13 +2,13 @@ package org.structuredschema;
 
 import java.util.List;
 
-public class SchemaException extends RuntimeException
+public class ValidationException extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;
 
 	private final List<Object> errors;
 
-	public SchemaException( List<Object> errors )
+	public ValidationException( List<Object> errors )
 	{
 		this.errors = errors;
 	}
@@ -21,6 +21,6 @@ public class SchemaException extends RuntimeException
 	@Override
 	public String toString( )
 	{
-		return "BAD SCHEMA! " + errors.toString( );
+		return "Validation Failed " + errors.toString( );
 	}
 }

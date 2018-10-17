@@ -48,11 +48,6 @@ public class Errors
 		return new Errors( parent, new LinkedList<>( ), step );
 	}
 
-	public void repend( Errors errors )
-	{
-		list.addAll( errors.list );
-	}
-
 	public void missingField( String name )
 	{
 		Map<String,Object> err = error( "missing_field" );
@@ -86,6 +81,15 @@ public class Errors
 		Map<String,Object> err = error( "invalid_value" );
 		err.put( "value", value );
 		err.put( "type", type );
+		list.add( err );
+	}
+	
+	public void invalidValue( Object value, Object type, List<Object> union )
+	{
+		Map<String,Object> err = error( "invalid_value" );
+		err.put( "value", value );
+		err.put( "type", type );
+		err.put( "union", union );
 		list.add( err );
 	}
 

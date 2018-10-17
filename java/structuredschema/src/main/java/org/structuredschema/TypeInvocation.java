@@ -113,26 +113,36 @@ public class TypeInvocation extends TypeExpression
 		}
 		else
 		{
-			TypeDeclaration decl = schema.get( name );
+			TypeDeclaration decl = schema.getType( name );
 
-			decl = subtype( val, decl, schema, errors );
-
-			if ( !decl.isAbstract( ) )
+			if ( decl != null )
 			{
-				Object def = extend( decl, schema );
+				decl = discriminate( val, decl, schema, errors );
 
-				for ( int i = 0; i < decl.getParameters( ).size( ); i++ )
+				if ( decl != null )
 				{
-					String pname = decl.getParameters( ).get( i );
-					TypeExpression pexpr = getParameter( i );
-					def = replace( def, pname, pexpr );
-				}
+					if ( !decl.isAbstract( ) )
+					{
+						Object def = extend( decl, schema );
 
-				schema.validate( val, def, errors );
+						for ( int i = 0; i < decl.getParameters( ).size( ); i++ )
+						{
+							String pname = decl.getParameters( ).get( i );
+							TypeExpression pexpr = getParameter( i );
+							def = replace( def, pname, pexpr );
+						}
+
+						schema.validate( val, def, errors );
+					}
+					else
+					{
+						throw new SchemaConsistancyException( "invoking type, abstract type found" );
+					}
+				}
 			}
 			else
 			{
-				throw new RuntimeException( "abstract declaration" );
+				throw new SchemaConsistancyException( "invoking type, type name not found in context: " + name );
 			}
 		}
 	}
@@ -143,20 +153,30 @@ public class TypeInvocation extends TypeExpression
 		String ext = decl.getExtnds( );
 		if ( ext != null )
 		{
-			TypeDeclaration edecl = schema.get( ext );
-			@SuppressWarnings("unchecked")
-			Map<String,Object> emap = (Map<String,Object>)extend( edecl, schema );
-			@SuppressWarnings("unchecked")
-			Map<String,Object> map = (Map<String,Object>)def;
-			Map<String,Object> result = new HashMap<String,Object>( );
-			result.putAll( emap );
-			result.putAll( map );
-			return result;
+			TypeDeclaration edecl = schema.getType( ext );
+			if ( edecl != null )
+			{
+				@SuppressWarnings("unchecked")
+				Map<String,Object> emap = (Map<String,Object>)extend( edecl, schema );
+				@SuppressWarnings("unchecked")
+				Map<String,Object> map = (Map<String,Object>)def;
+				Map<String,Object> result = new HashMap<String,Object>( );
+				result.putAll( emap );
+				result.putAll( map );
+				return result;
+			}
+			else
+			{
+				throw new SchemaConsistancyException( "extending type: " + decl.getName( ) + ", type name not found in context: " + ext );
+			}
 		}
-		return def;
+		else
+		{
+			return def;
+		}
 	}
 
-	private TypeDeclaration subtype( Object val, TypeDeclaration decl, StructuredSchema schema, Errors errors )
+	private TypeDeclaration discriminate( Object val, TypeDeclaration decl, StructuredSchema schema, Errors errors )
 	{
 		Object def = decl.getDefinition( );
 
@@ -181,17 +201,32 @@ public class TypeInvocation extends TypeExpression
 				{
 					@SuppressWarnings("unchecked")
 					Map<String,Object> vmap = (Map<String,Object>)val;
-					String sub = (String)vmap.get( discrim );
-					decl = schema.get( sub );
-					// subtype( val, decl, schema );
+					if ( vmap.containsKey( discrim ) )
+					{
+						String dt = (String)vmap.get( discrim );
+						if ( dt != null )
+						{
+							decl = schema.getType( dt );
+							if ( decl != null && !decl.isAbstract( ) )
+							{
+								return decl;
+								// discriminate( val, decl, schema );
+							}
+						}
+						errors.field( discrim ).invalidValue( dt, Discriminator.instance.toString( ) );
+					}
+					else
+					{
+						errors.missingField( discrim );
+					}
 				}
 				else
 				{
 					errors.invalidValue( val, toString( ) );
 				}
+				return null;
 			}
 		}
-
 		return decl;
 	}
 

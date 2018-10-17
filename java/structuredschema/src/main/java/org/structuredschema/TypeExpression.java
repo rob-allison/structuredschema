@@ -68,7 +68,7 @@ public abstract class TypeExpression
 					else
 					{
 						exprs.add( parse( last, tparams ) );
-						return new TypeExpressionList( exprs );
+						return new TypeExpressionUnion( exprs );
 					}
 				case "|":
 					exprs.add( parse( last, tparams ) );
@@ -91,7 +91,7 @@ public abstract class TypeExpression
 		else
 		{
 			exprs.add( parse( last, tparams ) );
-			return new TypeExpressionList( exprs );
+			return new TypeExpressionUnion( exprs );
 		}
 	}
 

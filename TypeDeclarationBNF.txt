@@ -1,4 +1,6 @@
-<type declaration>         ::= <name> <parameter declaration>*
-<parameter declaration>    ::= "[" <name> "]"
+<type declaration>    ::= <name> <type parameters>?
+<type parameters>     ::= "(" <parameter list> ")"
+<parameter list>      ::= <name> 
+                        | <parameter list> "," <name>
 
 <name>                (alphanumeric string without spaces, at least one alpha character)

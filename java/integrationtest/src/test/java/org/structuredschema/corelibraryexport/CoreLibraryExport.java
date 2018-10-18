@@ -1,4 +1,4 @@
-package org.structuredschema.standardlibraryexport;
+package org.structuredschema.corelibraryexport;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

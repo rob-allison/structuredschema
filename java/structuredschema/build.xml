@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="package" name="structuredschema">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <path id="structuredschema.classpath">
+        <pathelement location="bin"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src/main/java">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="init" name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src/main/java"/>
+            <classpath refid="structuredschema.classpath"/>
+        </javac>
+    </target>
+	<target depends="build" name="package">
+	    <exec executable="git" outputproperty="git.commit.hash" failifexecutionfails="true" errorproperty="">
+	        <arg value="rev-parse"/>
+	        <arg value="HEAD"/>
+	    </exec>
+		<exec executable="git" output="bin/git_status.txt" failifexecutionfails="true" errorproperty="">
+			<arg value="status"/>
+			<arg value="--short"/>
+		</exec>
+		<exec executable="git" output="bin/git_tags.txt" failifexecutionfails="true" errorproperty="">
+			<arg value="tag"/>
+			<arg value="--points-at"/>
+			<arg value="HEAD"/>
+		</exec>
+		<condition property="git.clean" value="true" else="false">
+		     <length file="bin/git_status.txt" when="equal" length="0" />
+		</condition>
+		<condition property="git.tagged" value="false" else="true">
+		     <length file="bin/git_tags.txt" when="equal" length="0" />
+		</condition>
+		<jar destfile="structuredschema.jar">
+			<manifest>
+				<attribute name="Git-Commit-Hash" value="${git.commit.hash}"/>
+				<attribute name="Git-Clean" value="${git.clean}"/>
+				<attribute name="Git-Tagged" value="${git.tagged}"/>
+			</manifest>
+		 	<fileset dir="bin"/>
+		</jar>
+	</target>
+</project>

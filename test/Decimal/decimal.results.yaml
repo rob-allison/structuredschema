@@ -1,13 +1,13 @@
 - []
-- - message: invalid_value
+- - code: invalid_value
     path: []
     type: "6.75"
     value: 7.75
-- - message: invalid_value
+- - code: invalid_value
     path: []
     type: "6.75"
     value: 23423234234.32423423234
-- - message: invalid_value
+- - code: invalid_value
     path: []
     type: "6.75"
     value: 54.34375565868e56

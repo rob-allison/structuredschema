@@ -1,36 +1,36 @@
 - []
-- - message: invalid_value
+- - code: invalid_value
     path: [0]
     type: /hello\d/
     value: hello
-  - message: invalid_value
+  - code: invalid_value
     path: [1]
     type: 3..9
     value: 1
-  - message: invalid_value
+  - code: invalid_value
     path: [2]
     type: "0.5"
     value: 6
-  - message: invalid_value
+  - code: invalid_value
     path: [3]
     type: "null"
     value: 7
-- - message: missing_item
+- - code: missing_item
     path: []
     index: 0
-  - message: missing_item
+  - code: missing_item
     path: []
     index: 1
-  - message: missing_item
+  - code: missing_item
     path: []
     index: 2
-  - message: missing_item
+  - code: missing_item
     path: []
     index: 3
-- - message: invalid_value
+- - code: invalid_value
     path: [0]
     type: /hello\d/
     value: hello
-  - message: extra_item
+  - code: extra_item
     path: []
     index: 4

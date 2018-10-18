@@ -1,5 +1,5 @@
 - []
-- - message: invalid_value
+- - code: invalid_value
     path: []
     type:
       a: "5"
@@ -7,15 +7,15 @@
       c: _hello_
       d: []
     value: 67
-- - message: invalid_value
+- - code: invalid_value
     path: [a]
     type: "5"
     value: 95
-  - message: invalid_value
+  - code: invalid_value
     path: [c]
     type: _hello_
     value: helloworld
-  - message: extra_item
+  - code: extra_item
     path: [d]
     index: 0
 

@@ -93,11 +93,11 @@ public class Errors
 		list.add( err );
 	}
 
-	private Map<String,Object> error( String msg )
+	private Map<String,Object> error( String code )
 	{
 		Map<String,Object> err = new HashMap<>( );
 		err.put( "path", path( ) );
-		err.put( "message", msg );
+		err.put( "code", code );
 		return err;
 	}
 

@@ -1,13 +1,13 @@
 - []
-- - message: invalid_value
+- - code: invalid_value
     path: []
     type: "6"
     value: 7
-- - message: invalid_value
+- - code: invalid_value
     path: []
     type: "6"
     value: 2342323423432423423234
-- - message: invalid_value
+- - code: invalid_value
     path: []
     type: "6"
     value: 5434375565868e56

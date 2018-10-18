@@ -52,8 +52,8 @@
 
 		<loadfile property="git.tags" srcFile="bin/git_tags.txt">
 			<filterchain>
-				<striplinebreaks/>
 				<suffixlines suffix=" "/>
+				<striplinebreaks/>
 		    </filterchain>
 		</loadfile>
 		<delete file="bin/git_tags.txt" />

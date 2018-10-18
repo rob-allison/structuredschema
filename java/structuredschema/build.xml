@@ -20,7 +20,6 @@
         <delete dir="bin"/>
     </target>
     <target depends="init" name="build">
-        <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src/main/java"/>
             <classpath refid="structuredschema.classpath"/>
@@ -31,6 +30,16 @@
 	        <arg value="rev-parse"/>
 	        <arg value="HEAD"/>
 	    </exec>
+		<exec executable="git" outputproperty="git.commit.time" failifexecutionfails="true" errorproperty="">
+			<arg value="log"/>
+			<arg value="-1"/>
+			<arg value="--format=%ci"/>
+		</exec>
+		<exec executable="git" outputproperty="git.branch.name" failifexecutionfails="true" errorproperty="">
+			<arg value="symbolic-ref"/>
+			<arg value="--short"/>
+			<arg value="HEAD"/>
+		</exec>
 		<exec executable="git" output="bin/git_status.txt" failifexecutionfails="true" errorproperty="">
 			<arg value="status"/>
 			<arg value="--short"/>
@@ -40,17 +49,27 @@
 			<arg value="--points-at"/>
 			<arg value="HEAD"/>
 		</exec>
+
+		<loadfile property="git.tags" srcFile="bin/git_tags.txt">
+			<filterchain>
+				<striplinebreaks/>
+				<suffixlines suffix=";"/>
+		    </filterchain>
+		</loadfile>
+		<delete file="bin/git_tags.txt" />
+		<property name="git.tags" value="" />
+		
 		<condition property="git.clean" value="true" else="false">
 		     <length file="bin/git_status.txt" when="equal" length="0" />
 		</condition>
-		<condition property="git.tagged" value="false" else="true">
-		     <length file="bin/git_tags.txt" when="equal" length="0" />
-		</condition>
+		
 		<jar destfile="structuredschema.jar">
 			<manifest>
 				<attribute name="Git-Commit-Hash" value="${git.commit.hash}"/>
+				<attribute name="Git-Commit-Time" value="${git.commit.time}"/>
+				<attribute name="Git-Branch-Name" value="${git.branch.name}"/>
+				<attribute name="Git-Tags" value="${git.tags}"/>
 				<attribute name="Git-Clean" value="${git.clean}"/>
-				<attribute name="Git-Tagged" value="${git.tagged}"/>
 			</manifest>
 		 	<fileset dir="bin"/>
 		</jar>

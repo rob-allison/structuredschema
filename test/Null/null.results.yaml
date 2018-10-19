@@ -1,9 +1,7 @@
 - []
-- - code: invalid_value
+- - code: unmatched-type
+    is: 'null'
     path: []
-    type: "null"
-    value: hello
-- - code: invalid_value
+- - code: unmatched-type
+    is: 'null'
     path: []
-    type: "null"
-    value: 5

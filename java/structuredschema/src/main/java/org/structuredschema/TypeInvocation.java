@@ -88,7 +88,7 @@ public class TypeInvocation extends TypeExpression
 			}
 			else
 			{
-				errors.invalidValue( val, toString( ) );
+				errors.unmatchedType( val, toString( ) );
 			}
 		}
 		else if ( name.equals( "Array" ) )
@@ -108,7 +108,7 @@ public class TypeInvocation extends TypeExpression
 			}
 			else
 			{
-				errors.invalidValue( val, toString( ) );
+				errors.unmatchedType( val, toString( ) );
 			}
 		}
 		else
@@ -213,7 +213,7 @@ public class TypeInvocation extends TypeExpression
 								// discriminate( val, decl, schema );
 							}
 						}
-						errors.field( discrim ).invalidValue( dt, Discriminator.instance.toString( ) );
+						errors.field( discrim ).unmatchedType( dt, Discriminator.instance.toString( ) );
 					}
 					else
 					{
@@ -222,7 +222,7 @@ public class TypeInvocation extends TypeExpression
 				}
 				else
 				{
-					errors.invalidValue( val, toString( ) );
+					errors.unmatchedType( val, toString( ) );
 				}
 				return null;
 			}

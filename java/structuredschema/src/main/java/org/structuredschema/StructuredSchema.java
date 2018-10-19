@@ -80,7 +80,7 @@ public class StructuredSchema
 			}
 			else
 			{
-				errors.invalidValue( val, writeDef( def ) );
+				errors.unmatchedType( val, writeDef( def ) );
 			}
 		}
 		else if ( def instanceof List )
@@ -117,7 +117,7 @@ public class StructuredSchema
 			}
 			else
 			{
-				errors.invalidValue( val, writeDef( def ) );
+				errors.unmatchedType( val, writeDef( def ) );
 			}
 		}
 		else if ( def instanceof TypeExpression )

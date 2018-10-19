@@ -1,6 +1,6 @@
 package org.structuredschema;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,58 +47,49 @@ public class Errors
 	{
 		return new Errors( parent, new LinkedList<>( ), step );
 	}
+	
+	public void reattach( Errors errors )
+	{
+		list.addAll( errors.list );
+	}
 
 	public void missingField( String name )
 	{
-		Map<String,Object> err = error( "missing_field" );
-		err.put( "fieldname", name );
-		list.add( err );
+		error( "missing-field", name );
 	}
 
 	public void extraField( String name )
 	{
-		Map<String,Object> err = error( "extra_field" );
-		err.put( "fieldname", name );
-		list.add( err );
+		error( "extra-field", name );
 	}
 
 	public void missingItem( int index )
 	{
-		Map<String,Object> err = error( "missing_item" );
-		err.put( "index", index );
-		list.add( err );
+		error( "missing-item", index );
 	}
 
 	public void extraItem( int index )
 	{
-		Map<String,Object> err = error( "extra_item" );
-		err.put( "index", index );
-		list.add( err );
+		error( "extra-item", index );
 	}
 
-	public void invalidValue( Object value, Object type )
+	public void unmatchedType( Object value, Object type )
 	{
-		Map<String,Object> err = error( "invalid_value" );
-		err.put( "value", value );
-		err.put( "type", type );
-		list.add( err );
+		error( "unmatched-type", type );
 	}
 	
-	public void invalidValue( Object value, Object type, List<Object> union )
+	public void unmatchedUnion( Object value, Object type )
 	{
-		Map<String,Object> err = error( "invalid_value" );
-		err.put( "value", value );
-		err.put( "type", type );
-		err.put( "union", union );
-		list.add( err );
+		error( "unmatched-union", type );
 	}
 
-	private Map<String,Object> error( String code )
+	private void error( String code, Object is )
 	{
-		Map<String,Object> err = new HashMap<>( );
-		err.put( "path", path( ) );
+		Map<String,Object> err = new LinkedHashMap<>( );
 		err.put( "code", code );
-		return err;
+		err.put( "is", is );
+		err.put( "path", path( ) );
+		list.add( err );
 	}
 
 	private List<Object> path( )

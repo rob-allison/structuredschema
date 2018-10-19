@@ -1,0 +1,8 @@
+/.metadata
+/.recommenders
+/*/bin/
+/*/testbin/
+/*/*.jar
+/*/.settings
+/*/.classpath
+/*/.project

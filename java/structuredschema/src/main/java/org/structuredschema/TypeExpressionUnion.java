@@ -20,7 +20,7 @@ public class TypeExpressionUnion extends TypeExpression
 	{
 		return expressions;
 	}
-	
+
 	@Override
 	public TypeExpression replace( String name, TypeExpression expression )
 	{
@@ -58,7 +58,12 @@ public class TypeExpressionUnion extends TypeExpression
 				dets.add( det );
 			}
 		}
-		
-		errors.invalidValue( val, toString( ), dets.stream( ).map( e -> e.toList( ) ).collect( Collectors.toList( ) ) );
+
+		errors.unmatchedUnion( val, toString( ) );
+
+		for ( Errors det : dets )
+		{
+			errors.reattach( det );
+		}
 	}
 }

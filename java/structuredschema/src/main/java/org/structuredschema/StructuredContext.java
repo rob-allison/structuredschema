@@ -145,54 +145,60 @@ public class StructuredContext
 	public static List<Object> coreLibrary( )
 	{
 		List<Object> core = new LinkedList<>( );
-		core.add( StructuredContext.decl( "Boolean", "true|false" ) );
-		core.add( StructuredContext.decl( "Integer", ".." ) );
-		core.add( StructuredContext.decl( "Decimal", "..." ) );
-		core.add( StructuredContext.decl( "String", "/.*/" ) );
-		core.add( StructuredContext.decl( "PositiveInteger", "0.." ) );
-		core.add( StructuredContext.decl( "PositiveDecimal", "0.0..." ) );
-		core.add( StructuredContext.decl( "Number", "..|..." ) );
-		core.add( StructuredContext.decl( "PositiveNumber", "0..|0.0..." ) );
-		core.add( StructuredContext.decl( "WholeNumber", "..|.../1.0" ) );
-		core.add( StructuredContext.decl( "NonEmptyString", "/.+/" ) );
-		core.add( StructuredContext.decl( "IntegerString", "/\\-?\\d+([eE][\\+\\-]?\\d+)?/" ) );
-		core.add( StructuredContext.decl( "DecimalString", "/\\-?\\d+\\.\\d+([eE][\\+\\-]?\\d+)?/" ) );
-		core.add( StructuredContext.decl( "NumberString", "IntegerString|DecimalString" ) );
-		core.add( StructuredContext.decl( "IsoDate", "/\\d{4}-[01]\\d-[0-3]\\d/" ) );
-		core.add( StructuredContext.decl( "IsoDateTimeHours", "/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d([+-][0-2]\\d:[0-5]\\d|Z)/" ) );
-		core.add( StructuredContext.decl( "IsoDateTimeMinutes", "/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)/" ) );
-		core.add( StructuredContext.decl( "IsoDateTimeSeconds", "/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)/" ) );
-		core.add( StructuredContext.decl( "IsoDateTimeMillis", "/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d{3}([+-][0-2]\\d:[0-5]\\d|Z)/" ) );
-		core.add( StructuredContext.decl( "IsoDateTime", "IsoDateTimeSeconds" ) );
-		core.add( StructuredContext.decl( "Scalar", "Boolean|Integer|Decimal|String" ) );
-		core.add( StructuredContext.decl( "NotNull", "Scalar|Object|Array" ) );
-		core.add( StructuredContext.decl( "Tree(T,X)", "T|Array(Tree(T),X)" ) );
-		core.add( StructuredContext.decl( "Graph(T)", "T|Object(Graph(T))" ) );
-		core.add( StructuredContext.decl( "Structured(T,X)", "T|Object(Structured(T))|Array(Structured(T,X))" ) );
-		core.add( StructuredContext.decl( "Grid(T,X,Y)", "Array(Array(T,Y),X)" ) );
-		core.add( StructuredContext.decl( "Grid3d(T,X,Y,Z)", "Array(Array(Array(T,Z),Y),X)" ) );
+		core.add( decl( "Boolean", "true|false" ) );
+		core.add( decl( "Integer", ".." ) );
+		core.add( decl( "Decimal", "..." ) );
+		core.add( decl( "String", "/.*/" ) );
+		core.add( decl( "PositiveInteger", "0.." ) );
+		core.add( decl( "PositiveDecimal", "0.0..." ) );
+		core.add( decl( "Number", "..|..." ) );
+		core.add( decl( "PositiveNumber", "0..|0.0..." ) );
+		core.add( decl( "WholeNumber", "..|.../1.0" ) );
+		core.add( decl( "NonEmptyString", "/.+/" ) );
+		core.add( decl( "IntegerString", "/\\-?\\d+([eE][\\+\\-]?\\d+)?/" ) );
+		core.add( decl( "DecimalString", "/\\-?\\d+\\.\\d+([eE][\\+\\-]?\\d+)?/" ) );
+		core.add( decl( "NumberString", "IntegerString|DecimalString" ) );
+		core.add( decl( "IsoDate", "/\\d{4}-[01]\\d-[0-3]\\d/" ) );
+		core.add( decl( "IsoDateTimeHours", "/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d([+-][0-2]\\d:[0-5]\\d|Z)/" ) );
+		core.add( decl( "IsoDateTimeMinutes", "/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)/" ) );
+		core.add( decl( "IsoDateTimeSeconds", "/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)/" ) );
+		core.add( decl( "IsoDateTimeMillis", "/\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d{3}([+-][0-2]\\d:[0-5]\\d|Z)/" ) );
+		core.add( decl( "IsoDateTime", "IsoDateTimeSeconds" ) );
+		core.add( decl( "Scalar", "Boolean|Integer|Decimal|String" ) );
+		core.add( decl( "NotNull", "Scalar|Object|Array" ) );
+		core.add( decl( "Tree(T,X)", "T|Array(Tree(T),X)" ) );
+		core.add( decl( "Graph(T)", "T|Object(Graph(T))" ) );
+		core.add( decl( "Structured(T,X)", "T|Object(Structured(T))|Array(Structured(T,X))" ) );
+		core.add( decl( "Grid(T,X,Y)", "Array(Array(T,Y),X)" ) );
+		core.add( decl( "Grid3d(T,X,Y,Z)", "Array(Array(Array(T,Z),Y),X)" ) );
 
 		Map<String,Object> keyed = new LinkedHashMap<>( );
 		keyed.put( "key", "K" );
 		keyed.put( "value", "V" );
-		core.add( StructuredContext.decl( "Entry(K,V)", keyed ) );
-		core.add( StructuredContext.decl( "Map(K,V,X)", "Array(Entry(K,V),X)" ) );
+		core.add( decl( "Entry(K,V)", keyed ) );
+		core.add( decl( "Map(K,V,X)", "Array(Entry(K,V),X)" ) );
 
 		Map<String,Object> directory = new LinkedHashMap<>( );
 		directory.put( "name", "String" );
 		directory.put( "contents", "Array(T|Directory(T),X)" );
-		core.add( StructuredContext.decl( "Directory(T,X)", directory ) );
+		core.add( decl( "Directory(T,X)", directory ) );
 
 		Map<String,Object> type = new LinkedHashMap<>( );
 		type.put( "name", "String" );
 		type.put( "abstract", "Boolean?" );
 		type.put( "extends", "String?" );
 		type.put( "def", "Structured(String)?" );
-		core.add( StructuredContext.decl( "Type", type ) );
+		core.add( decl( "Type", type ) );
 
-		core.add( StructuredContext.decl( "Schema", "Structured(String)" ) );
-		core.add( StructuredContext.decl( "Library", "Array(Type)" ) );
-
+		core.add( decl( "Schema", "Structured(String)" ) );
+		core.add( decl( "Library", "Array(Type)" ) );
+		
+		Map<String,Object> error = new LinkedHashMap<>( );
+		error.put( "code", "_missing-field_|_extra-field_|_missing-item_|_extra-item_|_unmatched-type_|_unmatched-union_" );
+		error.put( "is", "String|PositiveInteger" );
+		error.put( "path", "Array(String|PositiveInteger)" );
+		core.add( decl( "Error", error ) );
+		
 		return core;
 	}
 

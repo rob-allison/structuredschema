@@ -7,9 +7,19 @@
     <path id="structuredschema.classpath">
         <pathelement location="bin"/>
     </path>
+    <path id="structuredschema.testclasspath">
+    	<pathelement location="bin"/>
+        <pathelement location="testbin"/>
+    	<fileset dir="lib/test">
+    	    <include name="*.jar"/>
+    	</fileset>
+    </path>
+	
     <target name="clean">
         <delete dir="bin"/>
+    	<delete dir="testbin"/>
     </target>
+	
     <target depends="clean" name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
@@ -18,14 +28,38 @@
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
+    	<mkdir dir="testbin"/>
+		<copy includeemptydirs="false" todir="testbin">
+			<fileset dir="src/test/java">
+				<exclude name="**/*.launch"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
     </target>
+	
     <target depends="init" name="build">
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src/main/java"/>
             <classpath refid="structuredschema.classpath"/>
         </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="testbin" includeantruntime="false" source="${source}" target="${target}">
+             <src path="src/test/java"/>
+             <classpath refid="structuredschema.testclasspath"/>
+         </javac>
     </target>
-	<target depends="build" name="package">
+	
+	<target depends="build" name="test">
+		<junit printsummary="on">
+			<sysproperty key="basedir" value="/home/rob/structuredschema"/>
+			<classpath refid="structuredschema.testclasspath"/>
+			<batchtest>
+				<fileset dir="testbin" includes="**/*Test.class" />
+				<formatter type="plain" usefile="false"/>
+			</batchtest>
+		</junit>
+	</target>
+	
+	<target depends="test" name="package">
 	    <exec executable="git" outputproperty="git.commit.hash" failifexecutionfails="true" errorproperty="">
 	        <arg value="rev-parse"/>
 	        <arg value="HEAD"/>

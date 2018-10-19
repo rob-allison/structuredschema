@@ -1,4 +1,4 @@
-package org.structuredschema.integrationtest;
+package org.structuredschema;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,16 +17,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.structuredschema.StructuredContext;
-import org.structuredschema.StructuredSchema;
-import org.structuredschema.ValidationException;
 import org.yaml.snakeyaml.Yaml;
 
 @RunWith(Parameterized.class)
 public class IntegrationTest
 {
 	private static final Yaml yaml = new Yaml( );
-	private static final File dir = new File( System.getProperty( "dir" ) );
+	private static final File basedir = new File( System.getProperty( "basedir" ) );
 
 	private final String group;
 	private final String sname;
@@ -53,7 +50,7 @@ public class IntegrationTest
 		StructuredContext context = library != null ? StructuredContext.withLibrary( library ) : StructuredContext.core( );
 		StructuredSchema sch = context.read( schema );
 		Object errors = new LinkedList<Object>( );
-		
+
 		try
 		{
 			sch.validate( test );
@@ -84,7 +81,9 @@ public class IntegrationTest
 	{
 		List<Object> params = new LinkedList<>( );
 
-		for ( File gfile : dir.listFiles() )
+		File testdir = new File( basedir, "test" );
+		
+		for ( File gfile : testdir.listFiles( ) )
 		{
 			for ( File sfile : gfile.listFiles( new FilenameFilter( )
 			{
@@ -105,8 +104,7 @@ public class IntegrationTest
 				List<Object> tests = yaml.load( new FileReader( tfile ) );
 				List<Object> results = yaml.load( new FileReader( rfile ) );
 				List<Object> library = lfile.exists( ) ? yaml.load( new FileReader( lfile ) ) : null;
-				
-				
+
 				if ( tests.size( ) == results.size( ) )
 				{
 					for ( int i = 0; i < tests.size( ); i++ )

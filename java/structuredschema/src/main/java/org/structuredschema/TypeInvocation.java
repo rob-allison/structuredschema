@@ -88,7 +88,7 @@ public class TypeInvocation extends TypeExpression
 			}
 			else
 			{
-				errors.unmatchedType( val, toString( ) );
+				errors.objectExpected( val );
 			}
 		}
 		else if ( name.equals( "Array" ) )
@@ -108,7 +108,7 @@ public class TypeInvocation extends TypeExpression
 			}
 			else
 			{
-				errors.unmatchedType( val, toString( ) );
+				errors.arrayExpected( val );
 			}
 		}
 		else
@@ -203,26 +203,26 @@ public class TypeInvocation extends TypeExpression
 					Map<String,Object> vmap = (Map<String,Object>)val;
 					if ( vmap.containsKey( discrim ) )
 					{
-						String dt = (String)vmap.get( discrim );
-						if ( dt != null )
+						Object dt = vmap.get( discrim );
+						if ( dt != null && dt instanceof String )
 						{
-							decl = schema.getType( dt );
+							decl = schema.getType( (String)dt );
 							if ( decl != null && !decl.isAbstract( ) )
 							{
 								return decl;
 								// discriminate( val, decl, schema );
 							}
 						}
-						errors.field( discrim ).unmatchedType( dt, Discriminator.instance.toString( ) );
+						errors.badDiscriminator( val, discrim );
 					}
 					else
 					{
-						errors.missingField( discrim );
+						errors.missingField( val, discrim );
 					}
 				}
 				else
 				{
-					errors.unmatchedType( val, toString( ) );
+					errors.objectExpected( val );
 				}
 				return null;
 			}

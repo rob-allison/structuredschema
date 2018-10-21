@@ -1,5 +1,13 @@
-- 6.75
-- 7.75
-- 23423234234.32423423234
-- 54.34375565868e56
-
+schema: '6.75'
+tests:
+- test: 6.75
+  result: []
+- test: 7.75
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: '6.75', value: 7.75}
+- test: 2.3423234234324234E10
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: '6.75', value: 2.3423234234324234E10}
+- test: 5.434375565868E57
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: '6.75', value: 5.434375565868E57}

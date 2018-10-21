@@ -1,2 +1,7 @@
-- hello_world
-- hll_wrld
+schema: _hello__world_
+tests:
+- test: hello_world
+  result: []
+- test: hll_wrld
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: _hello__world_, value: hll_wrld}

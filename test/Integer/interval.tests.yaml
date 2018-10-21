@@ -1,6 +1,16 @@
-- 2
-- -9
-- 36
-- 342342342342342
-- -4234234234
-
+schema: -8..32
+tests:
+- test: 2
+  result: []
+- test: -9
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: -8..32, value: -9}
+- test: 36
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: -8..32, value: 36}
+- test: 342342342342342
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: -8..32, value: 342342342342342}
+- test: -4234234234
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: -8..32, value: -4234234234}

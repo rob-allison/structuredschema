@@ -72,6 +72,9 @@
   def: Array(Type)
 - name: Error
   def:
-    code: _missing-field_|_extra-field_|_missing-item_|_extra-item_|_unmatched-type_|_unmatched-union_
+    code: _missing-field_|_extra-field_|_missing-item_|_extra-item_|_unmatched-type_|_unmatched-union_|_bad-discriminator_
     is: String|PositiveInteger
     path: Array(String|PositiveInteger)
+    value: '*'
+- name: Errors
+  def: Array(Error,1..)

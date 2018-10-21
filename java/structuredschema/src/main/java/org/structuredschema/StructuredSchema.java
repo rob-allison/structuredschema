@@ -1,6 +1,7 @@
 package org.structuredschema;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class StructuredSchema
 						{
 							if ( fvexpr.isRequired( ) )
 							{
-								errors.missingField( key );
+								errors.missingField( val, key );
 							}
 						}
 					}
@@ -74,13 +75,13 @@ public class StructuredSchema
 				{
 					if ( !map.containsKey( key ) )
 					{
-						errors.extraField( key );
+						errors.extraField( val, key );
 					}
 				}
 			}
 			else
 			{
-				errors.unmatchedType( val, writeDef( def ) );
+				errors.objectExpected( val );
 			}
 		}
 		else if ( def instanceof List )
@@ -106,18 +107,18 @@ public class StructuredSchema
 						}
 						else
 						{
-							errors.missingItem( i );
+							errors.missingItem( val, i );
 						}
 					}
 					else
 					{
-						errors.extraItem( i );
+						errors.extraItem( val, i );
 					}
 				}
 			}
 			else
 			{
-				errors.unmatchedType( val, writeDef( def ) );
+				errors.arrayExpected( val );
 			}
 		}
 		else if ( def instanceof TypeExpression )
@@ -168,6 +169,35 @@ public class StructuredSchema
 		else
 		{
 			throw new RuntimeException( "bad def" );
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> T copy( Object obj )
+	{
+		if ( obj instanceof Map )
+		{
+			Map<String,Object> map = (Map<String,Object>)obj;
+			Map<String,Object> copy = new LinkedHashMap<>( );
+			for ( Map.Entry<String,Object> entry : map.entrySet( ) )
+			{
+				copy.put( entry.getKey( ), copy( entry.getValue( ) ) );
+			}
+			return (T)copy;
+		}
+		else if ( obj instanceof List )
+		{
+			List<Object> list = (List<Object>)obj;
+			List<Object> copy = new LinkedList<>( );
+			for ( Object item : list )
+			{
+				copy.add( copy( item ) );
+			}
+			return (T)copy;
+		}
+		else
+		{
+			return (T)obj;
 		}
 	}
 }

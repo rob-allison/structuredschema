@@ -1,5 +1,0 @@
-- []
-- - code: invalid_value
-    path: []
-    type: /\d+//\d+/
-    value: 16.5/57575

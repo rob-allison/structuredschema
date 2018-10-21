@@ -1,10 +1,16 @@
-- true
-- 5
-- 5.6
-- hello
-- - a
-  - b
-  - c
-- my: name
-  your: pen
-- null
+schema: '*'
+tests:
+- test: true
+  result: []
+- test: 5
+  result: []
+- test: 5.6
+  result: []
+- test: hello
+  result: []
+- test: [a, b, c]
+  result: []
+- test: {my: name, your: pen}
+  result: []
+- test: null
+  result: []

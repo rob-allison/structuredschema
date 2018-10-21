@@ -1,3 +1,10 @@
-- null
-- "hello"
-- 5
+schema: 'null'
+tests:
+- test: null
+  result: []
+- test: hello
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: 'null', value: hello}
+- test: 5
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: 'null', value: 5}

@@ -1,9 +1,45 @@
-- true
-- false
-- null
-- 4
-- 6
-- hello
-- helloworld
-- 6.8
-- 6.9
+schema: true|5..9|_hello_|6.8
+tests:
+- test: true
+  result: []
+- test: false
+  result:
+  - {path: '', code: UNMATCHED_UNION, is: true|5..9|_hello_|6.8, value: false}
+  - {path: '', code: UNMATCHED_TYPE, is: 'true', value: false}
+  - {path: '', code: UNMATCHED_TYPE, is: 5..9, value: false}
+  - {path: '', code: UNMATCHED_TYPE, is: _hello_, value: false}
+  - {path: '', code: UNMATCHED_TYPE, is: '6.8', value: false}
+- test: null
+  result:
+  - {path: '', code: UNMATCHED_UNION, is: true|5..9|_hello_|6.8, value: null}
+  - {path: '', code: UNMATCHED_TYPE, is: 'true', value: null}
+  - {path: '', code: UNMATCHED_TYPE, is: 5..9, value: null}
+  - {path: '', code: UNMATCHED_TYPE, is: _hello_, value: null}
+  - {path: '', code: UNMATCHED_TYPE, is: '6.8', value: null}
+- test: 4
+  result:
+  - {path: '', code: UNMATCHED_UNION, is: true|5..9|_hello_|6.8, value: 4}
+  - {path: '', code: UNMATCHED_TYPE, is: 'true', value: 4}
+  - {path: '', code: UNMATCHED_TYPE, is: 5..9, value: 4}
+  - {path: '', code: UNMATCHED_TYPE, is: _hello_, value: 4}
+  - {path: '', code: UNMATCHED_TYPE, is: '6.8', value: 4}
+- test: 6
+  result: []
+- test: hello
+  result: []
+- test: helloworld
+  result:
+  - {path: '', code: UNMATCHED_UNION, is: true|5..9|_hello_|6.8, value: helloworld}
+  - {path: '', code: UNMATCHED_TYPE, is: 'true', value: helloworld}
+  - {path: '', code: UNMATCHED_TYPE, is: 5..9, value: helloworld}
+  - {path: '', code: UNMATCHED_TYPE, is: _hello_, value: helloworld}
+  - {path: '', code: UNMATCHED_TYPE, is: '6.8', value: helloworld}
+- test: 6.8
+  result: []
+- test: 6.9
+  result:
+  - {path: '', code: UNMATCHED_UNION, is: true|5..9|_hello_|6.8, value: 6.9}
+  - {path: '', code: UNMATCHED_TYPE, is: 'true', value: 6.9}
+  - {path: '', code: UNMATCHED_TYPE, is: 5..9, value: 6.9}
+  - {path: '', code: UNMATCHED_TYPE, is: _hello_, value: 6.9}
+  - {path: '', code: UNMATCHED_TYPE, is: '6.8', value: 6.9}

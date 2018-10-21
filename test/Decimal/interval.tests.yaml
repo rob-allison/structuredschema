@@ -1,6 +1,15 @@
-- 2.43545
-- -8.34
-- 36.0
-- 342342342342342.233
-- -423.4234234
-
+schema: -8.5...32.7
+tests:
+- test: 2.43545
+  result: []
+- test: -8.34
+  result: []
+- test: 36.0
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: -8.5...32.7, value: 36.0}
+- test: 3.4234234234234225E14
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: -8.5...32.7, value: 3.4234234234234225E14}
+- test: -423.4234234
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: -8.5...32.7, value: -423.4234234}

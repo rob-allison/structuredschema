@@ -4,6 +4,7 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
+	<property name="rootdir" location="${basedir}/../.."/>
     <path id="structuredschema.classpath">
         <pathelement location="bin"/>
     </path>
@@ -50,7 +51,7 @@
 	
 	<target depends="build" name="test">
 		<junit printsummary="on">
-			<sysproperty key="basedir" value="/home/rob/structuredschema"/>
+			<sysproperty key="rootdir" value="${rootdir}"/>
 			<classpath refid="structuredschema.testclasspath"/>
 			<batchtest>
 				<fileset dir="testbin" includes="**/*Test.class" />

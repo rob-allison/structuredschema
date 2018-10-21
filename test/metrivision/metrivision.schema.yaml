@@ -1,5 +1,0 @@
-feeds: Array(Feed)                    # list of feeds
-vizers: Array(Vizer)                  # list of vizers
-connect: Array(Connect)               # list of connections between feeds and vizers
-home: Directory(String)?              # optionally define the directory structure when browsing MetriVision
-admin-link: Boolean?                  # display admin link (cog), defaults to true

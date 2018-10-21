@@ -1,14 +1,35 @@
-- - hello5
-  - 4
-  - 0.5
-  - null
-- - hello
-  - 1
-  - 6
-  - 7
-- []
-- - hello
-  - 4
-  - 0.5
-  - null
-  - extra
+schema: [/hello\d/, 3..9, '0.5', 'null']
+tests:
+- test: [hello5, 4, 0.5, null]
+  result: []
+- test: [hello, 1, 6, 7]
+  result:
+  - {path: '[0]', code: UNMATCHED_TYPE, is: /hello\d/, value: hello}
+  - {path: '[1]', code: UNMATCHED_TYPE, is: 3..9, value: 1}
+  - {path: '[2]', code: UNMATCHED_TYPE, is: '0.5', value: 6}
+  - {path: '[3]', code: UNMATCHED_TYPE, is: 'null', value: 7}
+- test: []
+  result:
+  - path: ''
+    code: MISSING_ITEM
+    is: 0
+    value: []
+  - path: ''
+    code: MISSING_ITEM
+    is: 1
+    value: []
+  - path: ''
+    code: MISSING_ITEM
+    is: 2
+    value: []
+  - path: ''
+    code: MISSING_ITEM
+    is: 3
+    value: []
+- test: [hello, 4, 0.5, null, extra]
+  result:
+  - {path: '[0]', code: UNMATCHED_TYPE, is: /hello\d/, value: hello}
+  - path: ''
+    code: EXTRA_ITEM
+    is: 4
+    value: [hello, 4, 0.5, null, extra]

@@ -1,3 +1,10 @@
-- true
-- false
-- null
+schema: 'true'
+tests:
+- test: true
+  result: []
+- test: false
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: 'true', value: false}
+- test: null
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: 'true', value: null}

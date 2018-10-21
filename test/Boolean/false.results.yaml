@@ -1,9 +1,0 @@
-- - code: invalid_value
-    path: []
-    type: "false"
-    value: true
-- []
-- - code: invalid_value
-    path: []
-    type: "false"
-    value: null

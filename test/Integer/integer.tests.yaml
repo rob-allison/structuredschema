@@ -1,5 +1,13 @@
-- 6
-- 7
-- 2342323423432423423234
-- 5434375565868e56
-
+schema: '6'
+tests:
+- test: 6
+  result: []
+- test: 7
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: '6', value: 7}
+- test: 2342323423432423423234
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: '6', value: 2342323423432423423234}
+- test: 5.434375565868E68
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: '6', value: 5.434375565868E68}

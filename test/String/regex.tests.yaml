@@ -1,2 +1,7 @@
-- 29/674
-- 16.5/57575
+schema: /\d+//\d+/
+tests:
+- test: 29/674
+  result: []
+- test: 16.5/57575
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: /\d+//\d+/, value: 16.5/57575}

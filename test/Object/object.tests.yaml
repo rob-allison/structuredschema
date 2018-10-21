@@ -1,9 +1,27 @@
-- a: 5
-  b: 5.8
-  c: hello
+schema:
+  a: '5'
+  b: 5.3...7.8
+  c: _hello_
   d: []
-- 67
-- a: 95
-  b: 5.8
-  c: helloworld
-  d: [6]
+tests:
+- test:
+    a: 5
+    b: 5.8
+    c: hello
+    d: []
+  result: []
+- test: 67
+  result:
+  - {path: '', code: UNMATCHED_TYPE, is: Object, value: 67}
+- test:
+    a: 95
+    b: 5.8
+    c: helloworld
+    d: [6]
+  result:
+  - {path: a, code: UNMATCHED_TYPE, is: '5', value: 95}
+  - {path: c, code: UNMATCHED_TYPE, is: _hello_, value: helloworld}
+  - path: d
+    code: EXTRA_ITEM
+    is: 0
+    value: [6]

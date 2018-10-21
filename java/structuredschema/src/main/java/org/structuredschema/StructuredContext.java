@@ -37,10 +37,10 @@ public class StructuredContext
 	{
 		List<Object> list = new LinkedList<>( );
 		list.add( library );
-		return withLibraries( list );
+		return withLibs( list );
 	}
 
-	public static StructuredContext withLibraries( List<Object> libraries )
+	public static StructuredContext withLibs( List<Object> libraries )
 	{
 		StructuredContext context = new StructuredContext( );
 		StructuredSchema libraryschema = corecontext.read( "Library" );
@@ -194,10 +194,12 @@ public class StructuredContext
 		core.add( decl( "Library", "Array(Type)" ) );
 		
 		Map<String,Object> error = new LinkedHashMap<>( );
-		error.put( "code", "_missing-field_|_extra-field_|_missing-item_|_extra-item_|_unmatched-type_|_unmatched-union_" );
+		error.put( "code", "_missing-field_|_extra-field_|_missing-item_|_extra-item_|_unmatched-type_|_unmatched-union_|_bad-discriminator_" );
 		error.put( "is", "String|PositiveInteger" );
 		error.put( "path", "Array(String|PositiveInteger)" );
+		error.put( "value", "*" );
 		core.add( decl( "Error", error ) );
+		core.add( decl( "Errors", "Array(Error,1..)" ) );
 		
 		return core;
 	}

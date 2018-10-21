@@ -53,43 +53,91 @@ public class Errors
 		list.addAll( errors.list );
 	}
 
-	public void missingField( String name )
+	public void missingField( Object value, String name )
 	{
-		error( "missing-field", name );
+		error( "MISSING_FIELD", value, name );
 	}
 
-	public void extraField( String name )
+	public void extraField( Object value, String name )
 	{
-		error( "extra-field", name );
+		error( "EXTRA_FIELD", value, name );
 	}
 
-	public void missingItem( int index )
+	public void missingItem( Object value, int index )
 	{
-		error( "missing-item", index );
+		error( "MISSING_ITEM", value, index );
 	}
 
-	public void extraItem( int index )
+	public void extraItem( Object value, int index )
 	{
-		error( "extra-item", index );
+		error( "EXTRA_ITEM", value, index );
 	}
 
 	public void unmatchedType( Object value, Object type )
 	{
-		error( "unmatched-type", type );
+		error( "UNMATCHED_TYPE", value, type );
 	}
 	
-	public void unmatchedUnion( Object value, Object type )
+	public void badDiscriminator( Object value, String field )
 	{
-		error( "unmatched-union", type );
+		error( "BAD_DISCRIMINATOR", value, field );
+	}
+	
+	public void objectExpected( Object value )
+	{
+		unmatchedType( value, "Object" );
+	}
+	
+	public void arrayExpected( Object value )
+	{
+		unmatchedType( value, "Array" );
+	}
+	
+	public void unmatchedUnion( Object value, String type )
+	{
+		error( "UNMATCHED_UNION", value, type );
 	}
 
-	private void error( String code, Object is )
+	private void error( String code, Object value, Object is )
 	{
 		Map<String,Object> err = new LinkedHashMap<>( );
+		err.put( "path", pathstring( ) );
 		err.put( "code", code );
 		err.put( "is", is );
-		err.put( "path", path( ) );
+		err.put( "value", StructuredSchema.copy( value ) );
 		list.add( err );
+	}
+	
+	private String pathstring( )
+	{
+		boolean predot = false;
+		List<Object> path = path( );
+		StringBuilder builder = new StringBuilder( );
+		for ( Object step : path )
+		{
+			if ( step instanceof String )
+			{
+				String name = (String)step;
+				if ( predot )
+				{
+					builder.append( '.' );
+				}
+				builder.append( name );
+				predot = true;
+			}
+			else if ( step instanceof Integer )
+			{
+				Integer index = (Integer)step;
+				builder.append( '[' );
+				builder.append( index );
+				builder.append( ']' );
+			}
+			else
+			{
+				throw new RuntimeException( "bad path" );
+			}
+		}
+		return builder.toString( );
 	}
 
 	private List<Object> path( )

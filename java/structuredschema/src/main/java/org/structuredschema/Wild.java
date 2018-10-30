@@ -9,7 +9,7 @@ public class Wild extends TypeLiteral
 	
 	public static String regex( )
 	{
-		return "\\*";
+		return "Any";
 	}
 	
 	@Override
@@ -21,6 +21,6 @@ public class Wild extends TypeLiteral
 	@Override
 	public void compose( Writer writer ) throws IOException
 	{
-		writer.write( "*" );
+		writer.write( "Any" );
 	}
 }

@@ -149,7 +149,7 @@ public class StructuredContext
 		core.add( decl( "Integer", ".." ) );
 		core.add( decl( "Decimal", "..." ) );
 		core.add( decl( "String", "/.*/" ) );
-		core.add( decl( "PositiveInteger", "0.." ) );
+		core.add( decl( "Natural", "0.." ) );
 		core.add( decl( "PositiveDecimal", "0.0..." ) );
 		core.add( decl( "Number", "..|..." ) );
 		core.add( decl( "PositiveNumber", "0..|0.0..." ) );
@@ -194,10 +194,10 @@ public class StructuredContext
 		core.add( decl( "Library", "Array(Type)" ) );
 		
 		Map<String,Object> error = new LinkedHashMap<>( );
-		error.put( "code", "_missing-field_|_extra-field_|_missing-item_|_extra-item_|_unmatched-type_|_unmatched-union_|_bad-discriminator_" );
-		error.put( "is", "String|PositiveInteger" );
-		error.put( "path", "Array(String|PositiveInteger)" );
-		error.put( "value", "*" );
+		error.put( "code", "_MISSING__FIELD_|_EXTRA__FIELD_|_MISSING__ITEM_|_EXTRA__ITEM_|_UNMATCHED__TYPE_|_UNMATCHED__UNION_|_BAD__DISCRIMINATOR_" );
+		error.put( "is", "String|Natural" );
+		error.put( "path", "Array(String|Natural)" );
+		error.put( "value", "Any" );
 		core.add( decl( "Error", error ) );
 		core.add( decl( "Errors", "Array(Error,1..)" ) );
 		

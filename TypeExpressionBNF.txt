@@ -9,10 +9,10 @@
                         | <decimal literal>
                         | "/" <regex> "/"
                         | "_" <string> "_"
-                        | "null"
-                        | "*"
-<boolean literal>     ::= "true" 
-                        | "false" 
+                        | "Null"
+                        | "Any"
+<boolean literal>     ::= "True" 
+                        | "False" 
 <integer literal>     ::= <integer>
                         | <integer interval>
 <integer interval>    ::= <integer>? ".." <integer>? <integer step>?
